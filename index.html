@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
 </head>
 <body>
 
@@ -49,7 +51,7 @@
       </div>
     </div>
 
-    <a class="btn-connexion" href="connexion.html">Connexion</a>
+    <a class="btn-connexion" id="btn-connexion" href="connexion.html">Connexion</a>
   </nav>
 </header>
 
@@ -151,6 +153,22 @@
 </main>
 
 <script>
+// bascule Connexion / Déconnexion selon l'état de session
+(async function(){
+  var btnConnexion = document.getElementById('btn-connexion');
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+  if (session) {
+    btnConnexion.textContent = 'Déconnexion';
+    btnConnexion.setAttribute('href', '#');
+    btnConnexion.addEventListener('click', async function(e){
+      e.preventDefault();
+      await window.supabaseClient.auth.signOut();
+      window.location.reload();
+    });
+  }
+})();
+
 // menu mobile (burger)
 var menuToggle = document.querySelector('.menu-toggle');
 var nav = document.querySelector('.nav');
