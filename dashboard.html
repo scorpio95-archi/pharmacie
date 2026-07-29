@@ -49,6 +49,12 @@
 
     <a href="index.html" class="btn-primary" style="display:block; text-decoration:none; margin-top:6px;">Retour à l'accueil</a>
   </div>
+
+  <div class="auth-card" id="carte-admin" style="display:none; margin-top:20px;">
+    <h1 style="font-size:19px; text-align:left;">Utilisateurs — Pharmacie</h1>
+    <p class="auth-sub" style="text-align:left; margin-bottom:18px;">Visible uniquement par les admins. Change le rôle d'un compte au besoin.</p>
+    <div id="liste-utilisateurs"><p class="auth-sub">Chargement…</p></div>
+  </div>
 </main>
 
 <script>
@@ -75,7 +81,64 @@
   document.getElementById('titre-bienvenue').textContent = 'Bonjour, ' + nom;
   document.getElementById('sous-titre-role').textContent =
     'Connecté·e en tant que ' + role + ' — Lakou Pharmacie';
+
+  if (role === 'admin') {
+    document.getElementById('carte-admin').style.display = 'block';
+    chargerUtilisateurs();
+  }
 })();
+
+async function chargerUtilisateurs(){
+  const conteneur = document.getElementById('liste-utilisateurs');
+
+  const { data: utilisateurs, error } = await window.supabaseClient
+    .from('profiles')
+    .select('id, nom_complet, role, created_at')
+    .eq('discipline', 'pharmacie')
+    .order('created_at', { ascending: false });
+
+  if (error || !utilisateurs) {
+    conteneur.innerHTML = '<p class="auth-sub">Impossible de charger la liste.</p>';
+    return;
+  }
+
+  if (utilisateurs.length === 0) {
+    conteneur.innerHTML = '<p class="auth-sub">Aucun inscrit pour le moment.</p>';
+    return;
+  }
+
+  conteneur.innerHTML = '';
+  utilisateurs.forEach(function(u){
+    const ligne = document.createElement('div');
+    ligne.className = 'user-row';
+    ligne.innerHTML =
+      '<span class="user-nom">' + (u.nom_complet || 'Sans nom') + '</span>' +
+      '<select class="user-role-select" data-id="' + u.id + '">' +
+        '<option value="etudiant"' + (u.role === 'etudiant' ? ' selected' : '') + '>Étudiant</option>' +
+        '<option value="enseignant"' + (u.role === 'enseignant' ? ' selected' : '') + '>Enseignant</option>' +
+        '<option value="admin"' + (u.role === 'admin' ? ' selected' : '') + '>Admin</option>' +
+      '</select>' +
+      '<span class="user-statut" data-statut></span>';
+    conteneur.appendChild(ligne);
+  });
+
+  conteneur.querySelectorAll('.user-role-select').forEach(function(select){
+    select.addEventListener('change', async function(){
+      const id = select.getAttribute('data-id');
+      const nouveauRole = select.value;
+      const statutEl = select.parentElement.querySelector('[data-statut]');
+      statutEl.textContent = '…';
+
+      const { error } = await window.supabaseClient
+        .from('profiles')
+        .update({ role: nouveauRole })
+        .eq('id', id);
+
+      statutEl.textContent = error ? '✕' : '✓';
+      statutEl.className = error ? 'user-statut erreur' : 'user-statut ok';
+    });
+  });
+}
 
 document.getElementById('btn-deco').addEventListener('click', async function(){
   await window.supabaseClient.auth.signOut();
