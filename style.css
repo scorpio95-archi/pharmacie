@@ -334,3 +334,79 @@ footer{ margin: 64px 24px 44px; text-align:center; font-size:13px; color: var(--
   .hero h1{ font-size:56px; }
   .cursus-facts{ grid-template-columns: repeat(4,1fr); }
 }
+
+/* ===================================================================
+   PAGES AUTH — connexion / inscription
+=================================================================== */
+.auth-main{
+  display:flex; justify-content:center;
+  padding: 40px 20px 60px;
+  min-height: 70vh;
+}
+.auth-card{
+  width:100%; max-width: 420px;
+  background: var(--blanc-carte);
+  border: 1px solid rgba(255,255,255,.7);
+  backdrop-filter: blur(14px);
+  border-radius: 32px;
+  box-shadow: var(--ombre);
+  padding: 36px 28px 32px;
+  align-self: flex-start;
+}
+.auth-icon{
+  width:56px; height:56px; margin: 0 auto 18px;
+  border-radius:999px;
+  background: linear-gradient(90deg, var(--vert-a) 50%, #fff 50%);
+  border: 1.5px solid var(--ligne);
+  display:flex; align-items:center; justify-content:center;
+}
+.auth-icon svg{ width:22px; height:22px; color: var(--encre); }
+.auth-card h1{
+  font-size: 24px; text-align:center; margin-bottom:6px;
+}
+.auth-sub{
+  text-align:center; font-size:13.5px; color: var(--encre); opacity:.7;
+  margin-bottom: 26px;
+}
+
+.field{ margin-bottom: 16px; }
+.field label{
+  display:block; font-family:'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing:.06em; text-transform:uppercase;
+  color: var(--vert-fonce); margin-bottom: 6px;
+}
+.field input{
+  width:100%; padding: 12px 14px;
+  border-radius: 14px; border: 1.4px solid var(--ligne);
+  background: #fff; font-family:'Work Sans', sans-serif;
+  font-size: 14.5px; color: var(--encre);
+  transition: border-color .2s ease;
+}
+.field input:focus{ outline:none; border-color: var(--vert); }
+
+.btn-primary{
+  width:100%; padding: 13px; margin-top: 6px;
+  background: var(--vert); color:#fff;
+  border-radius: 999px; font-weight:600; font-size:14.5px;
+  text-align:center; display:block; border:none;
+  transition: background .2s ease, transform .15s ease;
+}
+.btn-primary:hover{ background: var(--vert-fonce); }
+.btn-primary:disabled{ opacity:.6; }
+.btn-primary:active{ transform: scale(.98); }
+
+.auth-form-message{
+  font-size: 13px; padding: 11px 14px; border-radius:12px;
+  margin-bottom: 16px; display:none;
+}
+.auth-form-message.show{ display:block; }
+.auth-form-message.error{ background: #FBE7E2; color:#9B3B24; }
+.auth-form-message.success{ background: var(--vert-clair); color: var(--vert-fonce); }
+
+.auth-switch{
+  text-align:center; margin-top: 22px; font-size:13.5px; color: var(--encre); opacity:.8;
+}
+.auth-switch a, .auth-forgot{ color: var(--vert-fonce); font-weight:600; }
+.auth-forgot{
+  display:block; text-align:center; margin-top:12px; font-size:13px;
+}
