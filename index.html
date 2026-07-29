@@ -10,6 +10,10 @@
 </head>
 <body>
 
+<div class="atmosphere">
+  <span></span><span></span><span></span><span></span>
+</div>
+
 <div class="breadcrumb">
   <a href="https://lakou-sante.vercel.app/">🏠 Lakou Santé</a>
   <span class="sep">›</span>
@@ -19,8 +23,8 @@
 <header>
   <a href="#top" class="logo-link">
     <svg class="logo-mark" viewBox="0 0 40 40" fill="none">
-      <rect x="7" y="14" width="26" height="12" rx="6" fill="#EA4B2E" stroke="#4A2013" stroke-width="1.6"/>
-      <path d="M20 14v12" stroke="#FBF1E5" stroke-width="1.6" stroke-dasharray="1.6 2.4"/>
+      <rect x="7" y="14" width="26" height="12" rx="6" fill="#C97355" stroke="#34302A" stroke-width="1.4"/>
+      <path d="M20 14v12" stroke="#F3ECE0" stroke-width="1.4" stroke-dasharray="1.6 2.4"/>
     </svg>
     <span class="logo-text">LAKOU<span>Pharmacie</span></span>
   </a>
@@ -29,6 +33,7 @@
 <main id="top">
 
   <section class="hero">
+    <div class="hero-glow"></div>
     <div class="hero-scoreline"></div>
     <div class="hero-eyebrow"><span class="dot"></span> Réseau Lakou Inivesite — Lakou Santé</div>
     <h1>Lakou Pharmacie</h1>
@@ -57,61 +62,49 @@
     </div>
   </dl>
 
-  <div class="score-line" style="margin-top:44px;"></div>
+  <div class="score-line" style="margin-top:52px;"></div>
 
   <div class="section-label"><span>Dans l'archive</span><div class="line"></div></div>
-  <p class="section-intro">Quatre formats de travaux, pensés pour ce que les étudiants en pharmacie produisent vraiment — du stage en officine à un patrimoine que personne n'a encore eu la chance d'archiver.</p>
+  <p class="section-intro">Quatre formats de travaux, quatre formes pharmaceutiques — pensés pour ce que les étudiants en pharmacie produisent vraiment, du stage en officine à un patrimoine que personne n'a encore eu la chance d'archiver.</p>
 
-  <div class="gelule-grid">
+  <div class="forme-grid">
 
-    <div class="gelule-card">
-      <div class="gelule-half">
+    <div class="forme-card">
+      <div class="forme-badge badge-gelule">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16M6 19V9l6-5 6 5v10M10 19v-6h4v6"/></svg>
       </div>
-      <div class="gelule-body">
-        <span class="gelule-tag">Stage</span>
-        <div class="gelule-title">Mémoire de stage</div>
-        <div class="gelule-desc">Stage en officine ou en industrie, validé par le maître de stage — dispensation, gestion, conseil au comptoir.</div>
-      </div>
+      <span class="forme-tag">Stage</span>
+      <div class="forme-title">Mémoire de stage</div>
+      <div class="forme-desc">Stage en officine ou en industrie, validé par le maître de stage — dispensation, gestion, conseil au comptoir.</div>
     </div>
 
-    <div class="gelule-card">
-      <div class="gelule-half">
+    <div class="forme-card">
+      <div class="forme-badge badge-comprime">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="3" width="10" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
       </div>
-      <div class="gelule-body">
-        <span class="gelule-tag">Galénique</span>
-        <div class="gelule-title">Fiche médicament</div>
-        <div class="gelule-desc">Reconnaissance, posologie et forme galénique — le vocabulaire de base de tout futur pharmacien.</div>
-      </div>
+      <span class="forme-tag">Galénique</span>
+      <div class="forme-title">Fiche médicament</div>
+      <div class="forme-desc">Reconnaissance, posologie et forme galénique — le vocabulaire de base de tout futur pharmacien.</div>
     </div>
 
-    <div class="gelule-card special">
-      <div class="gelule-half">
+    <div class="forme-card special">
+      <div class="forme-badge badge-feuille">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21c-4-1-7-4-7-9a7 7 0 0114 0c0 5-3 8-7 9z"/><path d="M12 12V6"/></svg>
       </div>
-      <div class="gelule-body">
-        <span class="gelule-tag">Inédit</span>
-        <div class="gelule-title">Fiche plante médicinale</div>
-        <div class="gelule-desc">Pharmacognosie et ethnobotanique haïtienne — la tradition TRAMIL et la Pharmacopée Végétale Caribéenne, jamais archivées par les étudiants eux-mêmes.</div>
-      </div>
+      <span class="forme-tag">Inédit</span>
+      <div class="forme-title">Fiche plante médicinale</div>
+      <div class="forme-desc">Pharmacognosie et ethnobotanique haïtienne — la tradition TRAMIL et la Pharmacopée Végétale Caribéenne, jamais archivées par les étudiants eux-mêmes.</div>
     </div>
 
-    <div class="gelule-card">
-      <div class="gelule-half">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6l1 4H8l1-4z"/><path d="M8 7l-2 12a2 2 0 002 2h8a2 2 0 002-2L16 7"/></svg>
+    <div class="forme-card">
+      <div class="forme-badge badge-goutte">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l5 8a5 5 0 11-10 0l5-8z"/></svg>
       </div>
-      <div class="gelule-body">
-        <span class="gelule-tag">Pratique</span>
-        <div class="gelule-title">Protocole de dispensation</div>
-        <div class="gelule-desc">Suivi pharmaceutique, éducation thérapeutique du patient et mesures de prévention.</div>
-      </div>
+      <span class="forme-tag">Pratique</span>
+      <div class="forme-title">Protocole de dispensation</div>
+      <div class="forme-desc">Suivi pharmaceutique, éducation thérapeutique du patient et mesures de prévention.</div>
     </div>
 
-  </div>
-
-  <div class="blister">
-    <span></span><span></span><span></span><span></span><span></span>
   </div>
 
   <footer>
