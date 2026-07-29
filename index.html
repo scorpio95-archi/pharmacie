@@ -26,6 +26,31 @@
     </svg>
     <span class="logo-text">LAKOU<span>Pharmacie</span></span>
   </a>
+
+  <button class="menu-toggle" aria-label="Menu" aria-expanded="false">
+    <svg class="icon-burger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+
+  <nav class="nav">
+    <a href="#top">Accueil</a>
+    <a href="#filiere">La filière</a>
+    <a href="#archive">Dans l'archive</a>
+
+    <div class="nav-dropdown">
+      <button class="dropdown-toggle" aria-expanded="false">
+        Réseau
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="dropdown-menu">
+        <a href="https://lakou-sante.vercel.app/">🏠 Lakou Santé</a>
+        <a href="https://lakou-medecine.vercel.app/">Lakou Médecine</a>
+        <div class="disabled">Sciences infirmières <span class="tag-soon">Bientôt</span></div>
+      </div>
+    </div>
+
+    <a class="btn-connexion" href="#">Connexion</a>
+  </nav>
 </header>
 
 <main id="top">
@@ -38,7 +63,7 @@
     <p>De la molécule au comptoir de l'officine — l'archive des étudiants en pharmacie haïtiens, un comprimé à la fois.</p>
   </section>
 
-  <div class="section-label"><span>La filière</span><div class="line"></div></div>
+  <div id="filiere" class="section-label"><span>La filière</span><div class="line"></div></div>
   <p class="section-intro">Rattachée à la Faculté de Médecine et de Pharmacie de l'UEH, la section Pharmacie forme chaque année une quarantaine d'étudiants sur concours — la seule voie en Haïti vers le diplôme de pharmacien.</p>
 
   <dl class="cursus-facts">
@@ -50,7 +75,7 @@
 
   <div class="score-line" style="margin-top:52px;"></div>
 
-  <div class="section-label"><span>Dans l'archive</span><div class="line"></div></div>
+  <div id="archive" class="section-label"><span>Dans l'archive</span><div class="line"></div></div>
   <p class="section-intro">Quatre gélules-ateliers, quatre familles de travaux. Tapote une gélule : elle s'ouvre en deux pour laisser apparaître ce qu'elle contient.</p>
 
   <div class="gelule-grid">
@@ -126,6 +151,38 @@
 </main>
 
 <script>
+// menu mobile (burger)
+var menuToggle = document.querySelector('.menu-toggle');
+var nav = document.querySelector('.nav');
+menuToggle.addEventListener('click', function(){
+  var open = menuToggle.getAttribute('aria-expanded') === 'true';
+  menuToggle.setAttribute('aria-expanded', String(!open));
+  nav.classList.toggle('open', !open);
+});
+// ferme le menu mobile au clic sur un lien direct
+nav.querySelectorAll('a:not(.dropdown-menu a)').forEach(function(a){
+  a.addEventListener('click', function(){
+    nav.classList.remove('open');
+    menuToggle.setAttribute('aria-expanded', 'false');
+  });
+});
+
+// liste déroulante Réseau
+var dropdownToggle = document.querySelector('.dropdown-toggle');
+var dropdown = document.querySelector('.nav-dropdown');
+dropdownToggle.addEventListener('click', function(e){
+  e.stopPropagation();
+  var open = dropdownToggle.getAttribute('aria-expanded') === 'true';
+  dropdownToggle.setAttribute('aria-expanded', String(!open));
+  dropdown.classList.toggle('open', !open);
+});
+document.addEventListener('click', function(e){
+  if(!dropdown.contains(e.target)){
+    dropdownToggle.setAttribute('aria-expanded', 'false');
+    dropdown.classList.remove('open');
+  }
+});
+
 document.querySelectorAll('.gelule').forEach(function(btn){
   btn.addEventListener('click', function(){
     var expanded = btn.getAttribute('aria-expanded') === 'true';
