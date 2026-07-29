@@ -410,3 +410,18 @@ footer{ margin: 64px 24px 44px; text-align:center; font-size:13px; color: var(--
 .auth-forgot{
   display:block; text-align:center; margin-top:12px; font-size:13px;
 }
+
+/* ---------- panneau admin : liste utilisateurs ---------- */
+.user-row{
+  display:flex; align-items:center; gap:10px;
+  padding: 11px 0; border-bottom: 1px solid var(--ligne);
+}
+.user-row:last-child{ border-bottom:none; }
+.user-nom{ flex:1; font-size:14px; color: var(--encre); }
+.user-role-select{
+  font-size:13px; padding:6px 10px; border-radius:10px;
+  border:1.4px solid var(--ligne); background:#fff; color: var(--encre);
+}
+.user-statut{ width:16px; text-align:center; font-size:13px; }
+.user-statut.ok{ color: var(--vert); }
+.user-statut.erreur{ color:#9B3B24; }
