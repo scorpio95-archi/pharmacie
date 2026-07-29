@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inscription — Lakou Pharmacie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body>
+
+<div class="atmosphere"><span></span><span></span><span></span><span></span></div>
+
+<div class="breadcrumb">
+  <a href="index.html">🏠 Lakou Pharmacie</a>
+  <span class="sep">›</span>
+  <span class="current">Inscription</span>
+</div>
+
+<header>
+  <a href="index.html" class="logo-link">
+    <svg class="logo-mark" viewBox="0 0 40 40" fill="none">
+      <rect x="7" y="14" width="26" height="12" rx="6" fill="#1F7A54" stroke="#145C3E" stroke-width="1.4"/>
+      <path d="M20 14v12" stroke="#FCFDFB" stroke-width="1.4" stroke-dasharray="1.6 2.4"/>
+    </svg>
+    <span class="logo-text">LAKOU<span>Pharmacie</span></span>
+  </a>
+</header>
+
+<main class="auth-main">
+  <div class="auth-card">
+    <div class="auth-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21c-4-1-7-4-7-9a7 7 0 0114 0c0 5-3 8-7 9z"/><path d="M12 12V6"/></svg>
+    </div>
+    <h1>Inscription</h1>
+    <p class="auth-sub">Rejoins l'archive des étudiants en pharmacie.</p>
+
+    <div class="auth-form-message" id="msg"></div>
+
+    <form id="form-signup">
+      <div class="field">
+        <label for="nom">Nom complet</label>
+        <input type="text" id="nom" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" required minlength="6" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label for="password2">Confirmer le mot de passe</label>
+        <input type="password" id="password2" required minlength="6" autocomplete="new-password">
+      </div>
+      <button class="btn-primary" type="submit" id="btn-submit">Créer mon compte</button>
+    </form>
+
+    <p class="auth-switch">Déjà inscrit·e ? <a href="connexion.html">Se connecter</a></p>
+  </div>
+</main>
+
+<script>
+var form = document.getElementById('form-signup');
+var msg = document.getElementById('msg');
+var btn = document.getElementById('btn-submit');
+
+function afficherMessage(texte, type){
+  msg.textContent = texte;
+  msg.className = 'auth-form-message show ' + type;
+}
+
+form.addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  var nom = document.getElementById('nom').value.trim();
+  var email = document.getElementById('email').value.trim();
+  var password = document.getElementById('password').value;
+  var password2 = document.getElementById('password2').value;
+
+  if (password !== password2) {
+    afficherMessage("Les deux mots de passe ne correspondent pas.", 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Création…';
+  msg.className = 'auth-form-message';
+
+  const { data, error } = await window.supabaseClient.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: {
+        nom_complet: nom,
+        discipline: 'pharmacie'   // ⚠️ garder 'pharmacie' sur ce site — 'infirmiere' sur l'autre
+      }
+      // ⚠️ emailRedirectTo doit correspondre à la Site URL configurée
+      // dans Supabase (Authentication → URL Configuration) une fois déployé.
+      // Ex : emailRedirectTo: 'https://lakou-pharmacie.vercel.app/connexion.html'
+    }
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Créer mon compte';
+
+  if (error) {
+    var texte = "Une erreur est survenue. Réessaie.";
+    if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+      texte = "Un compte existe déjà avec cet email.";
+    } else if (error.message.toLowerCase().includes('password')) {
+      texte = "Mot de passe trop court (6 caractères minimum).";
+    }
+    afficherMessage(texte, 'error');
+    return;
+  }
+
+  afficherMessage("Compte créé ! Vérifie ton email pour confirmer avant de te connecter.", 'success');
+  form.reset();
+});
+</script>
+
+</body>
+</html>
