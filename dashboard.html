@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de bord — Lakou Pharmacie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body>
+
+<div class="atmosphere"><span></span><span></span><span></span><span></span></div>
+
+<div class="breadcrumb">
+  <a href="index.html">🏠 Lakou Pharmacie</a>
+  <span class="sep">›</span>
+  <span class="current">Tableau de bord</span>
+</div>
+
+<header>
+  <a href="index.html" class="logo-link">
+    <svg class="logo-mark" viewBox="0 0 40 40" fill="none">
+      <rect x="7" y="14" width="26" height="12" rx="6" fill="#1F7A54" stroke="#145C3E" stroke-width="1.4"/>
+      <path d="M20 14v12" stroke="#FCFDFB" stroke-width="1.4" stroke-dasharray="1.6 2.4"/>
+    </svg>
+    <span class="logo-text">LAKOU<span>Pharmacie</span></span>
+  </a>
+  <button class="btn-connexion" id="btn-deco" style="width:auto;">Déconnexion</button>
+</header>
+
+<main class="auth-main" style="align-items:flex-start;">
+  <div class="auth-card" id="carte-chargement">
+    <p class="auth-sub" style="margin:0;">Chargement de ton espace…</p>
+  </div>
+
+  <div class="auth-card" id="carte-dashboard" style="display:none;">
+    <div class="auth-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16M6 19V9l6-5 6 5v10M10 19v-6h4v6"/></svg>
+    </div>
+    <h1 id="titre-bienvenue">Bonjour</h1>
+    <p class="auth-sub" id="sous-titre-role"></p>
+
+    <div class="auth-form-message show" style="background:var(--vert-clair); color:var(--vert-fonce); text-align:center;">
+      Le tableau de bord complet (soumissions, validations, statistiques) arrive dans une prochaine étape. Ton compte est bien connecté et prêt.
+    </div>
+
+    <a href="index.html" class="btn-primary" style="display:block; text-decoration:none; margin-top:6px;">Retour à l'accueil</a>
+  </div>
+</main>
+
+<script>
+(async function(){
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+
+  if (!session) {
+    window.location.href = 'connexion.html';
+    return;
+  }
+
+  const { data: profil, error } = await window.supabaseClient
+    .from('profiles')
+    .select('nom_complet, role, discipline')
+    .eq('id', session.user.id)
+    .single();
+
+  document.getElementById('carte-chargement').style.display = 'none';
+  document.getElementById('carte-dashboard').style.display = 'block';
+
+  var nom = profil && profil.nom_complet ? profil.nom_complet : session.user.email;
+  var role = profil && profil.role ? profil.role : 'etudiant';
+
+  document.getElementById('titre-bienvenue').textContent = 'Bonjour, ' + nom;
+  document.getElementById('sous-titre-role').textContent =
+    'Connecté·e en tant que ' + role + ' — Lakou Pharmacie';
+})();
+
+document.getElementById('btn-deco').addEventListener('click', async function(){
+  await window.supabaseClient.auth.signOut();
+  window.location.href = 'index.html';
+});
+</script>
+
+</body>
+</html>
