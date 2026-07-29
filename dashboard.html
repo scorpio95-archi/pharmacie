@@ -57,6 +57,41 @@
   </div>
 </main>
 
+<!-- ---------- FAB : nouvelle soumission ---------- -->
+<div class="fab-container" id="fab-container">
+  <div class="fab-menu" id="fab-menu">
+    <button class="fab-item" data-type="protocole">
+      <span class="fab-badge badge-goutte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l5 8a5 5 0 11-10 0l5-8z"/></svg></span>
+      <span class="fab-label">Protocole de dispensation</span>
+    </button>
+    <button class="fab-item" data-type="plante">
+      <span class="fab-badge badge-feuille"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21c-4-1-7-4-7-9a7 7 0 0114 0c0 5-3 8-7 9z"/><path d="M12 12V6"/></svg></span>
+      <span class="fab-label">Fiche plante médicinale</span>
+    </button>
+    <button class="fab-item" data-type="medicament">
+      <span class="fab-badge badge-comprime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="3" width="10" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+      <span class="fab-label">Fiche médicament</span>
+    </button>
+    <button class="fab-item" data-type="stage">
+      <span class="fab-badge badge-gelule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16M6 19V9l6-5 6 5v10M10 19v-6h4v6"/></svg></span>
+      <span class="fab-label">Mémoire de stage</span>
+    </button>
+  </div>
+  <button class="fab-main" id="fab-main" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+</div>
+
+<!-- ---------- Modal générique de soumission ---------- -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-card">
+    <button class="modal-close" id="modal-close">&times;</button>
+    <h2 id="modal-titre">Titre</h2>
+    <div class="auth-form-message" id="modal-msg"></div>
+    <form id="modal-form"></form>
+  </div>
+</div>
+
 <script>
 (async function(){
   const { data: { session } } = await window.supabaseClient.auth.getSession();
@@ -143,6 +178,203 @@ async function chargerUtilisateurs(){
 document.getElementById('btn-deco').addEventListener('click', async function(){
   await window.supabaseClient.auth.signOut();
   window.location.href = 'index.html';
+});
+
+/* =====================================================================
+   SOUMISSIONS — FAB + modal générique pour les 4 gélules
+===================================================================== */
+const FORMULAIRES = {
+  stage: {
+    table: 'pharmacie_stages',
+    titre: 'Mémoire de stage',
+    urlChamp: 'fichier_url',
+    champs: [
+      { id:'titre', label:'Titre', type:'text', requis:true },
+      { id:'type_stage', label:'Type de stage', type:'select', requis:true,
+        options:[['officine','Officine'],['industrie','Industrie']] },
+      { id:'lieu', label:'Lieu', type:'text' },
+      { id:'periode', label:'Période', type:'text', placeholder:'ex. Juin – Août 2026' },
+      { id:'description', label:'Description', type:'textarea' },
+      { id:'fichier', label:'Fichier (PDF, optionnel)', type:'file' }
+    ]
+  },
+  medicament: {
+    table: 'pharmacie_medicaments',
+    titre: 'Fiche médicament',
+    urlChamp: 'image_url',
+    champs: [
+      { id:'nom_medicament', label:'Nom du médicament', type:'text', requis:true },
+      { id:'forme_galenique', label:'Forme galénique', type:'text', placeholder:'ex. comprimé, sirop' },
+      { id:'classe_therapeutique', label:'Classe thérapeutique', type:'text' },
+      { id:'posologie', label:'Posologie', type:'textarea' },
+      { id:'description', label:'Description', type:'textarea' },
+      { id:'image', label:'Image (optionnel)', type:'file' }
+    ]
+  },
+  plante: {
+    table: 'pharmacie_plantes',
+    titre: 'Fiche plante médicinale',
+    urlChamp: 'image_url',
+    champs: [
+      { id:'nom_plante', label:'Nom de la plante', type:'text', requis:true },
+      { id:'nom_local', label:'Nom local / créole', type:'text' },
+      { id:'famille_botanique', label:'Famille botanique', type:'text' },
+      { id:'usages_traditionnels', label:'Usages traditionnels', type:'textarea' },
+      { id:'proprietes_pharmacologiques', label:'Propriétés pharmacologiques', type:'textarea' },
+      { id:'source_reference', label:'Source / référence', type:'text', placeholder:'ex. TRAMIL' },
+      { id:'image', label:'Image (optionnel)', type:'file' }
+    ]
+  },
+  protocole: {
+    table: 'pharmacie_protocoles',
+    titre: 'Protocole de dispensation',
+    urlChamp: 'fichier_url',
+    champs: [
+      { id:'titre', label:'Titre', type:'text', requis:true },
+      { id:'contexte', label:'Contexte', type:'textarea' },
+      { id:'etapes', label:'Étapes', type:'textarea' },
+      { id:'precautions', label:'Précautions', type:'textarea' },
+      { id:'fichier', label:'Fichier (optionnel)', type:'file' }
+    ]
+  }
+};
+
+const fabContainer = document.getElementById('fab-container');
+const fabMain = document.getElementById('fab-main');
+const overlay = document.getElementById('modal-overlay');
+const modalForm = document.getElementById('modal-form');
+const modalTitre = document.getElementById('modal-titre');
+const modalMsg = document.getElementById('modal-msg');
+
+fabMain.addEventListener('click', function(){
+  var open = fabMain.getAttribute('aria-expanded') === 'true';
+  fabMain.setAttribute('aria-expanded', String(!open));
+  fabContainer.classList.toggle('open', !open);
+});
+
+document.querySelectorAll('.fab-item').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    ouvrirFormulaire(btn.getAttribute('data-type'));
+    fabMain.setAttribute('aria-expanded', 'false');
+    fabContainer.classList.remove('open');
+  });
+});
+
+function ouvrirFormulaire(type){
+  const config = FORMULAIRES[type];
+  modalTitre.textContent = config.titre;
+  modalMsg.className = 'auth-form-message';
+  modalForm.innerHTML = '';
+  modalForm.setAttribute('data-type', type);
+
+  config.champs.forEach(function(champ){
+    var wrap = document.createElement('div');
+    wrap.className = 'field';
+    var label = document.createElement('label');
+    label.textContent = champ.label + (champ.requis ? ' *' : '');
+    label.setAttribute('for', 'champ-' + champ.id);
+    wrap.appendChild(label);
+
+    var input;
+    if (champ.type === 'textarea') {
+      input = document.createElement('textarea');
+      input.rows = 3;
+    } else if (champ.type === 'select') {
+      input = document.createElement('select');
+      champ.options.forEach(function(opt){
+        var o = document.createElement('option');
+        o.value = opt[0]; o.textContent = opt[1];
+        input.appendChild(o);
+      });
+    } else {
+      input = document.createElement('input');
+      input.type = champ.type;
+      if (champ.placeholder) input.placeholder = champ.placeholder;
+    }
+    input.id = 'champ-' + champ.id;
+    input.name = champ.id;
+    if (champ.requis) input.required = true;
+    wrap.appendChild(input);
+    modalForm.appendChild(wrap);
+  });
+
+  var btn = document.createElement('button');
+  btn.type = 'submit';
+  btn.className = 'btn-primary';
+  btn.textContent = 'Soumettre';
+  modalForm.appendChild(btn);
+
+  overlay.classList.add('open');
+}
+
+document.getElementById('modal-close').addEventListener('click', function(){
+  overlay.classList.remove('open');
+});
+overlay.addEventListener('click', function(e){
+  if (e.target === overlay) overlay.classList.remove('open');
+});
+
+modalForm.addEventListener('submit', async function(e){
+  e.preventDefault();
+  const type = modalForm.getAttribute('data-type');
+  const config = FORMULAIRES[type];
+  const btn = modalForm.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'Envoi…';
+  modalMsg.className = 'auth-form-message';
+
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+  if (!session) {
+    window.location.href = 'connexion.html';
+    return;
+  }
+
+  const payload = { user_id: session.user.id };
+  let fichier = null;
+
+  config.champs.forEach(function(champ){
+    if (champ.type === 'file') {
+      const inputEl = document.getElementById('champ-' + champ.id);
+      if (inputEl.files && inputEl.files[0]) fichier = inputEl.files[0];
+    } else {
+      payload[champ.id] = document.getElementById('champ-' + champ.id).value;
+    }
+  });
+
+  if (fichier) {
+    const chemin = type + '/' + session.user.id + '/' + Date.now() + '-' + fichier.name;
+    const { error: erreurUpload } = await window.supabaseClient.storage
+      .from('lakou-pharmacie-files')
+      .upload(chemin, fichier);
+
+    if (erreurUpload) {
+      btn.disabled = false;
+      btn.textContent = 'Soumettre';
+      modalMsg.textContent = "Échec de l'envoi du fichier.";
+      modalMsg.className = 'auth-form-message show error';
+      return;
+    }
+
+    const { data: urlPublique } = window.supabaseClient.storage
+      .from('lakou-pharmacie-files')
+      .getPublicUrl(chemin);
+    payload[config.urlChamp] = urlPublique.publicUrl;
+  }
+
+  const { error } = await window.supabaseClient.from(config.table).insert(payload);
+
+  btn.disabled = false;
+  btn.textContent = 'Soumettre';
+
+  if (error) {
+    modalMsg.textContent = "Une erreur est survenue. Réessaie.";
+    modalMsg.className = 'auth-form-message show error';
+    return;
+  }
+
+  modalMsg.textContent = "Soumission envoyée avec succès.";
+  modalMsg.className = 'auth-form-message show success';
+  setTimeout(function(){ overlay.classList.remove('open'); }, 1200);
 });
 </script>
 
