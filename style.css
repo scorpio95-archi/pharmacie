@@ -105,17 +105,6 @@ header{
 .menu-toggle[aria-expanded="true"] .icon-close{ display:block; }
 .menu-toggle svg{ width:20px; height:20px; }
 
-/* ---------- menu burger (mobile) ---------- */
-.menu-toggle{
-  width:40px; height:40px; border-radius:12px;
-  display:flex; align-items:center; justify-content:center;
-  border: 1px solid var(--ligne); color: var(--encre);
-}
-.menu-toggle .icon-close{ display:none; }
-.menu-toggle[aria-expanded="true"] .icon-burger{ display:none; }
-.menu-toggle[aria-expanded="true"] .icon-close{ display:block; }
-.menu-toggle svg{ width:20px; height:20px; }
-
 /* ---------- nav ---------- */
 .nav{
   order:3;
@@ -436,6 +425,33 @@ footer{ margin: 64px 24px 44px; text-align:center; font-size:13px; color: var(--
 .user-statut{ width:16px; text-align:center; font-size:13px; }
 .user-statut.ok{ color: var(--vert); }
 .user-statut.erreur{ color:#9B3B24; }
+
+/* ---------- Mes soumissions ---------- */
+.soumission-row{
+  display:flex; align-items:center; gap:12px;
+  padding: 12px 0; border-bottom: 1px solid var(--ligne);
+}
+.soumission-row:last-child{ border-bottom:none; }
+.soumission-badge{
+  width:36px; height:36px; flex-shrink:0;
+}
+.soumission-info{ flex:1; display:flex; flex-direction:column; min-width:0; }
+.soumission-titre{
+  font-size:14px; font-weight:600; color: var(--encre);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.soumission-type{
+  font-family:'JetBrains Mono', monospace; font-size:10.5px;
+  color: var(--vert-fonce); opacity:.7; text-transform:uppercase; letter-spacing:.04em;
+}
+.statut-pill{
+  flex-shrink:0; font-size:11px; font-weight:600;
+  padding:4px 10px; border-radius:999px;
+  font-family:'JetBrains Mono', monospace;
+}
+.statut-pill.attente{ background:#F3EDD8; color:#8A6D1F; }
+.statut-pill.valide{ background: var(--vert-clair); color: var(--vert-fonce); }
+.statut-pill.rejete{ background:#FBE7E2; color:#9B3B24; }
 
 /* ---------- FAB : nouvelle soumission ---------- */
 .fab-container{
