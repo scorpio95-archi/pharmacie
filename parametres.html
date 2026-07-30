@@ -90,6 +90,24 @@
       </form>
     </div>
 
+    <!-- Devenir enseignant -->
+    <div class="auth-card" id="carte-devenir-enseignant" style="display:none; margin-top:20px;">
+      <h1 style="font-size:19px; text-align:left;">Devenir enseignant</h1>
+      <p class="auth-sub" style="text-align:left; margin-bottom:18px;">
+        Explique qui tu es (établissement, poste, matière enseignée) — un admin lira ta demande avant de l'approuver.
+      </p>
+
+      <div class="auth-form-message" id="msg-demande"></div>
+
+      <form id="form-demande">
+        <div class="field">
+          <label for="justification">Ta justification</label>
+          <textarea id="justification" rows="4" required placeholder="ex. Je suis professeur de pharmacognosie à la FMP-UEH depuis 2019, matricule..."></textarea>
+        </div>
+        <button class="btn-primary" type="submit" id="btn-demande">Envoyer ma demande</button>
+      </form>
+    </div>
+
     <a href="dashboard.html" class="auth-switch" style="display:block; margin-top:22px;">← Retour au tableau de bord</a>
   </div>
 </main>
@@ -104,7 +122,7 @@ let sessionCourante = null;
 
   const { data: profil } = await window.supabaseClient
     .from('profiles')
-    .select('nom_complet, role, avatar_url')
+    .select('nom_complet, role, avatar_url, demande_role, justification_role')
     .eq('id', session.user.id)
     .single();
 
@@ -119,6 +137,19 @@ let sessionCourante = null;
     document.getElementById('avatar-apercu').src = profil.avatar_url;
     document.getElementById('avatar-apercu').style.display = 'block';
     document.getElementById('avatar-vide').style.display = 'none';
+  }
+
+  // carte "devenir enseignant" — seulement pour un étudiant
+  if (profil?.role === 'etudiant') {
+    const carte = document.getElementById('carte-devenir-enseignant');
+    carte.style.display = 'block';
+
+    if (profil.demande_role === 'enseignant') {
+      carte.querySelector('form').style.display = 'none';
+      const msg = document.getElementById('msg-demande');
+      msg.textContent = 'Ta demande est envoyée, en attente de réponse d\'un admin.';
+      msg.className = 'auth-form-message show success';
+    }
   }
 })();
 
@@ -198,6 +229,34 @@ document.getElementById('form-mdp').addEventListener('submit', async function(e)
   msg.textContent = error ? "Erreur : " + error.message : 'Mot de passe mis à jour.';
   msg.className = 'auth-form-message show ' + (error ? 'error' : 'success');
   if (!error) { document.getElementById('form-mdp').reset(); }
+});
+
+// ---- formulaire demande enseignant ----
+document.getElementById('form-demande').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const btn = document.getElementById('btn-demande');
+  const msg = document.getElementById('msg-demande');
+  btn.disabled = true; btn.textContent = 'Envoi…';
+
+  const { error } = await window.supabaseClient
+    .from('profiles')
+    .update({
+      demande_role: 'enseignant',
+      justification_role: document.getElementById('justification').value.trim()
+    })
+    .eq('id', sessionCourante.user.id);
+
+  btn.disabled = false; btn.textContent = 'Envoyer ma demande';
+
+  if (error) {
+    msg.textContent = "Erreur lors de l'envoi de la demande.";
+    msg.className = 'auth-form-message show error';
+    return;
+  }
+
+  document.getElementById('form-demande').style.display = 'none';
+  msg.textContent = 'Demande envoyée, en attente de réponse d\'un admin.';
+  msg.className = 'auth-form-message show success';
 });
 </script>
 
