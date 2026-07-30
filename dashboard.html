@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="supabase-client.js"></script>
 </head>
 <body>
@@ -54,6 +55,38 @@
     <h1 style="font-size:19px; text-align:left;">Mes soumissions</h1>
     <p class="auth-sub" style="text-align:left; margin-bottom:18px;">Tapote le bouton + en bas pour en ajouter une nouvelle.</p>
     <div id="liste-soumissions"><p class="auth-sub">Chargement…</p></div>
+  </div>
+
+  <div class="auth-card" id="carte-stats" style="display:none; margin-top:20px;">
+    <h1 style="font-size:19px; text-align:left;">Statistiques — Pharmacie</h1>
+    <p class="auth-sub" style="text-align:left; margin-bottom:18px;">Visible uniquement par les admins.</p>
+
+    <div class="stats-inscrits">
+      <span class="stats-live-dot"></span>
+      <span id="stats-inscrits-nombre">—</span>
+      <span class="stats-inscrits-label">inscrit·e·s</span>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stats-card attente">
+        <span class="stats-card-nombre" id="stat-en_attente">—</span>
+        <span class="stats-card-label">Soumis</span>
+      </div>
+      <div class="stats-card valide">
+        <span class="stats-card-nombre" id="stat-valide">—</span>
+        <span class="stats-card-label">Validé</span>
+      </div>
+      <div class="stats-card rejete">
+        <span class="stats-card-nombre" id="stat-rejete">—</span>
+        <span class="stats-card-label">Rejeté</span>
+      </div>
+    </div>
+
+    <p class="stats-chart-titre">Activité — 14 derniers jours</p>
+    <canvas id="stats-chart" height="140"></canvas>
+
+    <button class="btn-primary" id="btn-rapport" style="margin-top:20px;">Envoyer un rapport</button>
+    <div class="auth-form-message" id="rapport-msg"></div>
   </div>
 
   <div class="auth-card" id="carte-admin" style="display:none; margin-top:20px;">
@@ -127,7 +160,9 @@
   chargerMesSoumissions(session.user.id);
 
   if (role === 'admin') {
+    document.getElementById('carte-stats').style.display = 'block';
     document.getElementById('carte-admin').style.display = 'block';
+    chargerStatistiques();
     chargerUtilisateurs();
   }
 })();
@@ -192,6 +227,96 @@ async function chargerMesSoumissions(userId){
     conteneur.appendChild(ligne);
   });
 }
+
+/* =====================================================================
+   STATISTIQUES — admin uniquement
+===================================================================== */
+async function chargerStatistiques(){
+  const { count: nbInscrits } = await window.supabaseClient
+    .from('profiles')
+    .select('*', { count: 'exact', head: true })
+    .eq('discipline', 'pharmacie');
+
+  document.getElementById('stats-inscrits-nombre').textContent = nbInscrits ?? 0;
+
+  window.supabaseClient
+    .channel('profiles-pharmacie')
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'profiles', filter: 'discipline=eq.pharmacie' },
+      function(){
+        const el = document.getElementById('stats-inscrits-nombre');
+        el.textContent = (parseInt(el.textContent, 10) || 0) + 1;
+      }
+    )
+    .subscribe();
+
+  const compteurs = { en_attente: 0, valide: 0, rejete: 0 };
+  const parJour = {};
+
+  const reponses = await Promise.all(TYPES_SOUMISSION.map(function(t){
+    return window.supabaseClient.from(t.table).select('status, created_at');
+  }));
+
+  reponses.forEach(function(reponse){
+    if (reponse.error || !reponse.data) return;
+    reponse.data.forEach(function(ligne){
+      if (compteurs[ligne.status] !== undefined) compteurs[ligne.status]++;
+      const jour = ligne.created_at.slice(0, 10);
+      parJour[jour] = (parJour[jour] || 0) + 1;
+    });
+  });
+
+  document.getElementById('stat-en_attente').textContent = compteurs.en_attente;
+  document.getElementById('stat-valide').textContent = compteurs.valide;
+  document.getElementById('stat-rejete').textContent = compteurs.rejete;
+
+  const jours = [];
+  const valeurs = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const cle = d.toISOString().slice(0, 10);
+    jours.push(cle.slice(5).replace('-', '/'));
+    valeurs.push(parJour[cle] || 0);
+  }
+
+  new Chart(document.getElementById('stats-chart'), {
+    type: 'bar',
+    data: {
+      labels: jours,
+      datasets: [{ data: valeurs, backgroundColor: '#1F7A54', borderRadius: 4 }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } },
+        x: { ticks: { font: { size: 9 } } }
+      }
+    }
+  });
+}
+
+document.getElementById('btn-rapport').addEventListener('click', async function(){
+  const btn = this;
+  const msg = document.getElementById('rapport-msg');
+  btn.disabled = true;
+  btn.textContent = 'Envoi…';
+  msg.className = 'auth-form-message';
+
+  const { data, error } = await window.supabaseClient.functions.invoke('send-report');
+
+  btn.disabled = false;
+  btn.textContent = 'Envoyer un rapport';
+
+  if (error) {
+    msg.textContent = "Échec de l'envoi. Vérifie que la Edge Function est déployée.";
+    msg.className = 'auth-form-message show error';
+    return;
+  }
+
+  msg.textContent = 'Rapport envoyé par email.';
+  msg.className = 'auth-form-message show success';
+});
 
 async function chargerUtilisateurs(){
   const conteneur = document.getElementById('liste-utilisateurs');
