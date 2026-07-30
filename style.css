@@ -148,6 +148,33 @@ header{
   border-radius:999px; border:none !important;
   padding:12px 6px !important;
 }
+.header-icon-link{
+  width:40px; height:40px; border-radius:12px;
+  border:1px solid var(--ligne); color: var(--encre);
+  display:flex; align-items:center; justify-content:center;
+  margin-right:10px;
+}
+.header-actions{ display:flex; align-items:center; }
+
+/* ---------- Paramètres : avatar ---------- */
+.avatar-zone{
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  margin-bottom: 22px;
+}
+.avatar-img, .avatar-vide{
+  width:76px; height:76px; border-radius:50%;
+  object-fit:cover; border: 2px solid var(--vert-clair);
+}
+.avatar-vide{
+  display:flex; align-items:center; justify-content:center;
+  background: var(--vert-clair); font-size:28px;
+}
+.avatar-upload-btn{
+  font-size:13px; font-weight:600; color: var(--vert-fonce);
+  border:1.4px dashed var(--vert); padding:7px 16px; border-radius:999px;
+  cursor:pointer;
+}
+.header-icon-link svg{ width:19px; height:19px; }
 
 @media (min-width: 720px){
   header{ flex-wrap:nowrap; }
