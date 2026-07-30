@@ -44,10 +44,16 @@
     <p class="auth-sub" id="sous-titre-role"></p>
 
     <div class="auth-form-message show" style="background:var(--vert-clair); color:var(--vert-fonce); text-align:center;">
-      Le tableau de bord complet (soumissions, validations, statistiques) arrive dans une prochaine étape. Ton compte est bien connecté et prêt.
+      Les validations et la section Statistiques arrivent dans une prochaine étape.
     </div>
 
     <a href="index.html" class="btn-primary" style="display:block; text-decoration:none; margin-top:6px;">Retour à l'accueil</a>
+  </div>
+
+  <div class="auth-card" id="carte-soumissions" style="display:none; margin-top:20px;">
+    <h1 style="font-size:19px; text-align:left;">Mes soumissions</h1>
+    <p class="auth-sub" style="text-align:left; margin-bottom:18px;">Tapote le bouton + en bas pour en ajouter une nouvelle.</p>
+    <div id="liste-soumissions"><p class="auth-sub">Chargement…</p></div>
   </div>
 
   <div class="auth-card" id="carte-admin" style="display:none; margin-top:20px;">
@@ -117,11 +123,75 @@
   document.getElementById('sous-titre-role').textContent =
     'Connecté·e en tant que ' + role + ' — Lakou Pharmacie';
 
+  document.getElementById('carte-soumissions').style.display = 'block';
+  chargerMesSoumissions(session.user.id);
+
   if (role === 'admin') {
     document.getElementById('carte-admin').style.display = 'block';
     chargerUtilisateurs();
   }
 })();
+
+const TYPES_SOUMISSION = [
+  { table:'pharmacie_stages', label:'Mémoire de stage', badge:'badge-gelule', champTitre:'titre' },
+  { table:'pharmacie_medicaments', label:'Fiche médicament', badge:'badge-comprime', champTitre:'nom_medicament' },
+  { table:'pharmacie_plantes', label:'Fiche plante médicinale', badge:'badge-feuille', champTitre:'nom_plante' },
+  { table:'pharmacie_protocoles', label:'Protocole de dispensation', badge:'badge-goutte', champTitre:'titre' }
+];
+
+const LIBELLE_STATUT = {
+  en_attente: { texte: 'En attente', classe: 'attente' },
+  valide:     { texte: 'Validé',      classe: 'valide' },
+  rejete:     { texte: 'Rejeté',      classe: 'rejete' }
+};
+
+async function chargerMesSoumissions(userId){
+  const conteneur = document.getElementById('liste-soumissions');
+
+  const reponses = await Promise.all(TYPES_SOUMISSION.map(function(t){
+    return window.supabaseClient
+      .from(t.table)
+      .select('id, status, created_at, ' + t.champTitre)
+      .eq('user_id', userId);
+  }));
+
+  let items = [];
+  reponses.forEach(function(reponse, i){
+    if (reponse.error || !reponse.data) return;
+    const type = TYPES_SOUMISSION[i];
+    reponse.data.forEach(function(ligne){
+      items.push({
+        titre: ligne[type.champTitre] || '(sans titre)',
+        label: type.label,
+        badge: type.badge,
+        status: ligne.status,
+        created_at: ligne.created_at
+      });
+    });
+  });
+
+  items.sort(function(a,b){ return new Date(b.created_at) - new Date(a.created_at); });
+
+  if (items.length === 0) {
+    conteneur.innerHTML = '<p class="auth-sub">Aucune soumission pour le moment — tapote le bouton + en bas.</p>';
+    return;
+  }
+
+  conteneur.innerHTML = '';
+  items.forEach(function(item){
+    const statut = LIBELLE_STATUT[item.status] || { texte: item.status, classe: 'attente' };
+    const ligne = document.createElement('div');
+    ligne.className = 'soumission-row';
+    ligne.innerHTML =
+      '<span class="soumission-badge ' + item.badge + '"></span>' +
+      '<span class="soumission-info">' +
+        '<span class="soumission-titre">' + item.titre + '</span>' +
+        '<span class="soumission-type">' + item.label + '</span>' +
+      '</span>' +
+      '<span class="statut-pill ' + statut.classe + '">' + statut.texte + '</span>';
+    conteneur.appendChild(ligne);
+  });
+}
 
 async function chargerUtilisateurs(){
   const conteneur = document.getElementById('liste-utilisateurs');
