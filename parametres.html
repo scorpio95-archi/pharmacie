@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paramètres — Lakou Pharmacie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body>
+
+<div class="atmosphere"><span></span><span></span><span></span><span></span></div>
+
+<div class="breadcrumb">
+  <a href="dashboard.html">🏠 Tableau de bord</a>
+  <span class="sep">›</span>
+  <span class="current">Paramètres</span>
+</div>
+
+<header>
+  <a href="index.html" class="logo-link">
+    <svg class="logo-mark" viewBox="0 0 40 40" fill="none">
+      <rect x="7" y="14" width="26" height="12" rx="6" fill="#1F7A54" stroke="#145C3E" stroke-width="1.4"/>
+      <path d="M20 14v12" stroke="#FCFDFB" stroke-width="1.4" stroke-dasharray="1.6 2.4"/>
+    </svg>
+    <span class="logo-text">LAKOU<span>Pharmacie</span></span>
+  </a>
+</header>
+
+<main class="auth-main" style="align-items:flex-start;">
+  <div class="auth-card" id="carte-chargement">
+    <p class="auth-sub" style="margin:0;">Chargement…</p>
+  </div>
+
+  <div id="carte-parametres" style="display:none; width:100%; max-width:420px;">
+
+    <!-- Profil -->
+    <div class="auth-card">
+      <h1 style="font-size:19px; text-align:left;">Mon profil</h1>
+      <p class="auth-sub" style="text-align:left; margin-bottom:18px;">Visible par les enseignants et admins de ta discipline.</p>
+
+      <div class="avatar-zone">
+        <img id="avatar-apercu" class="avatar-img" src="" alt="" style="display:none;">
+        <div id="avatar-vide" class="avatar-vide">👤</div>
+        <label class="avatar-upload-btn">
+          Changer la photo
+          <input type="file" id="input-avatar" accept="image/*" style="display:none;">
+        </label>
+      </div>
+
+      <div class="auth-form-message" id="msg-profil"></div>
+
+      <form id="form-profil">
+        <div class="field">
+          <label for="nom">Nom complet</label>
+          <input type="text" id="nom" required>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="text" id="email-affiche" disabled>
+        </div>
+        <div class="field">
+          <label>Rôle</label>
+          <input type="text" id="role-affiche" disabled>
+        </div>
+        <button class="btn-primary" type="submit" id="btn-profil">Enregistrer</button>
+      </form>
+    </div>
+
+    <!-- Mot de passe -->
+    <div class="auth-card" style="margin-top:20px;">
+      <h1 style="font-size:19px; text-align:left;">Mot de passe</h1>
+      <p class="auth-sub" style="text-align:left; margin-bottom:18px;">Laisse vide si tu ne veux rien changer.</p>
+
+      <div class="auth-form-message" id="msg-mdp"></div>
+
+      <form id="form-mdp">
+        <div class="field">
+          <label for="nouveau-mdp">Nouveau mot de passe</label>
+          <input type="password" id="nouveau-mdp" minlength="6" autocomplete="new-password">
+        </div>
+        <div class="field">
+          <label for="confirmer-mdp">Confirmer</label>
+          <input type="password" id="confirmer-mdp" minlength="6" autocomplete="new-password">
+        </div>
+        <button class="btn-primary" type="submit" id="btn-mdp">Mettre à jour</button>
+      </form>
+    </div>
+
+    <a href="dashboard.html" class="auth-switch" style="display:block; margin-top:22px;">← Retour au tableau de bord</a>
+  </div>
+</main>
+
+<script>
+let sessionCourante = null;
+
+(async function(){
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+  if (!session) { window.location.href = 'connexion.html'; return; }
+  sessionCourante = session;
+
+  const { data: profil } = await window.supabaseClient
+    .from('profiles')
+    .select('nom_complet, role, avatar_url')
+    .eq('id', session.user.id)
+    .single();
+
+  document.getElementById('carte-chargement').style.display = 'none';
+  document.getElementById('carte-parametres').style.display = 'block';
+
+  document.getElementById('nom').value = profil?.nom_complet || '';
+  document.getElementById('email-affiche').value = session.user.email;
+  document.getElementById('role-affiche').value = profil?.role || 'etudiant';
+
+  if (profil?.avatar_url) {
+    document.getElementById('avatar-apercu').src = profil.avatar_url;
+    document.getElementById('avatar-apercu').style.display = 'block';
+    document.getElementById('avatar-vide').style.display = 'none';
+  }
+})();
+
+// ---- upload avatar ----
+document.getElementById('input-avatar').addEventListener('change', async function(e){
+  const fichier = e.target.files[0];
+  if (!fichier || !sessionCourante) return;
+
+  const chemin = 'avatars/' + sessionCourante.user.id + '/' + Date.now() + '-' + fichier.name;
+  const { error: erreurUpload } = await window.supabaseClient.storage
+    .from('lakou-pharmacie-files')
+    .upload(chemin, fichier);
+
+  if (erreurUpload) {
+    document.getElementById('msg-profil').textContent = "Échec de l'envoi de l'image.";
+    document.getElementById('msg-profil').className = 'auth-form-message show error';
+    return;
+  }
+
+  const { data: urlPublique } = window.supabaseClient.storage
+    .from('lakou-pharmacie-files')
+    .getPublicUrl(chemin);
+
+  await window.supabaseClient
+    .from('profiles')
+    .update({ avatar_url: urlPublique.publicUrl })
+    .eq('id', sessionCourante.user.id);
+
+  document.getElementById('avatar-apercu').src = urlPublique.publicUrl;
+  document.getElementById('avatar-apercu').style.display = 'block';
+  document.getElementById('avatar-vide').style.display = 'none';
+});
+
+// ---- formulaire profil (nom) ----
+document.getElementById('form-profil').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const btn = document.getElementById('btn-profil');
+  const msg = document.getElementById('msg-profil');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+
+  const { error } = await window.supabaseClient
+    .from('profiles')
+    .update({ nom_complet: document.getElementById('nom').value.trim() })
+    .eq('id', sessionCourante.user.id);
+
+  btn.disabled = false; btn.textContent = 'Enregistrer';
+
+  msg.textContent = error ? "Erreur lors de l'enregistrement." : 'Profil mis à jour.';
+  msg.className = 'auth-form-message show ' + (error ? 'error' : 'success');
+});
+
+// ---- formulaire mot de passe ----
+document.getElementById('form-mdp').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const nouveau = document.getElementById('nouveau-mdp').value;
+  const confirmer = document.getElementById('confirmer-mdp').value;
+  const msg = document.getElementById('msg-mdp');
+
+  if (!nouveau) {
+    msg.textContent = 'Renseigne un nouveau mot de passe.';
+    msg.className = 'auth-form-message show error';
+    return;
+  }
+  if (nouveau !== confirmer) {
+    msg.textContent = 'Les mots de passe ne correspondent pas.';
+    msg.className = 'auth-form-message show error';
+    return;
+  }
+
+  const btn = document.getElementById('btn-mdp');
+  btn.disabled = true; btn.textContent = 'Mise à jour…';
+
+  const { error } = await window.supabaseClient.auth.updateUser({ password: nouveau });
+
+  btn.disabled = false; btn.textContent = 'Mettre à jour';
+
+  msg.textContent = error ? "Erreur : " + error.message : 'Mot de passe mis à jour.';
+  msg.className = 'auth-form-message show ' + (error ? 'error' : 'success');
+  if (!error) { document.getElementById('form-mdp').reset(); }
+});
+</script>
+
+</body>
+</html>
