@@ -37,7 +37,7 @@
   </div>
 </header>
 
-<main class="auth-main" style="align-items:flex-start;">
+<main class="auth-main dashboard-grid">
   <div class="auth-card" id="carte-chargement">
     <p class="auth-sub" style="margin:0;">Chargement de ton espace…</p>
   </div>
@@ -49,6 +49,10 @@
     <h1 id="titre-bienvenue">Bonjour</h1>
     <p class="auth-sub" id="sous-titre-role"></p>
 
+    <a href="parametres.html" class="banniere-enseignant" id="banniere-enseignant" style="display:none;">
+      🎓 Tu es enseignant·e ? <strong>Demande ton statut dans Paramètres →</strong>
+    </a>
+
     <div class="auth-form-message show" style="background:var(--vert-clair); color:var(--vert-fonce); text-align:center;">
       Les validations et la section Statistiques arrivent dans une prochaine étape.
     </div>
@@ -56,13 +60,13 @@
     <a href="index.html" class="btn-primary" style="display:block; text-decoration:none; margin-top:6px;">Retour à l'accueil</a>
   </div>
 
-  <div class="auth-card" id="carte-soumissions" style="display:none; margin-top:20px;">
+  <div class="auth-card" id="carte-soumissions" style="display:none;">
     <h1 style="font-size:19px; text-align:left;">Mes soumissions</h1>
     <p class="auth-sub" style="text-align:left; margin-bottom:18px;">Tapote le bouton + en bas pour en ajouter une nouvelle.</p>
     <div id="liste-soumissions"><p class="auth-sub">Chargement…</p></div>
   </div>
 
-  <div class="auth-card" id="carte-stats" style="display:none; margin-top:20px;">
+  <div class="auth-card" id="carte-stats" style="display:none;">
     <h1 style="font-size:19px; text-align:left;">Statistiques — Pharmacie</h1>
     <p class="auth-sub" style="text-align:left; margin-bottom:18px;">Visible uniquement par les admins.</p>
 
@@ -94,7 +98,7 @@
     <div class="auth-form-message" id="rapport-msg"></div>
   </div>
 
-  <div class="auth-card" id="carte-admin" style="display:none; margin-top:20px;">
+  <div class="auth-card" id="carte-admin" style="display:none;">
     <h1 style="font-size:19px; text-align:left;">Utilisateurs — Pharmacie</h1>
     <p class="auth-sub" style="text-align:left; margin-bottom:18px;">Visible uniquement par les admins. Change le rôle d'un compte au besoin.</p>
 
@@ -163,6 +167,10 @@
   document.getElementById('titre-bienvenue').textContent = 'Bonjour, ' + nom;
   document.getElementById('sous-titre-role').textContent =
     'Connecté·e en tant que ' + role + ' — Lakou Pharmacie';
+
+  if (role === 'etudiant') {
+    document.getElementById('banniere-enseignant').style.display = 'flex';
+  }
 
   document.getElementById('carte-soumissions').style.display = 'block';
   chargerMesSoumissions(session.user.id);
