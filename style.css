@@ -604,3 +604,21 @@ footer{ margin: 64px 24px 44px; text-align:center; font-size:13px; color: var(--
   .modal-overlay{ align-items:center; }
   .modal-card{ border-radius:28px; }
 }
+/* ---------- demandes du rôle enseignant ---------- */
+.demande-card{
+  background:#FBF6E8; border:1px solid #EADFB0;
+  border-radius:16px; padding:14px 16px; margin-bottom:14px;
+}
+.demande-nom{ font-size:14px; font-weight:600; color: var(--encre); margin-bottom:6px; }
+.demande-tag{
+  font-family:'JetBrains Mono', monospace; font-size:10px;
+  background:#EADFB0; color:#7A5E14; padding:2px 8px; border-radius:999px;
+  text-transform:uppercase; letter-spacing:.04em; margin-left:4px;
+}
+.demande-justif{ font-size:13px; color: var(--encre); opacity:.85; margin-bottom:12px; white-space:pre-wrap; }
+.demande-actions{ display:flex; gap:10px; }
+.demande-btn{
+  flex:1; padding:9px; border-radius:999px; font-size:13px; font-weight:600;
+}
+.demande-btn.approuver{ background: var(--vert); color:#fff; }
+.demande-btn.refuser{ background:#fff; border:1.4px solid var(--ligne); color: var(--encre); }
