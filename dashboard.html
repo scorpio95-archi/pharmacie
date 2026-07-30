@@ -303,7 +303,7 @@ document.getElementById('btn-rapport').addEventListener('click', async function(
   btn.textContent = 'Envoi…';
   msg.className = 'auth-form-message';
 
-  const { data, error } = await window.supabaseClient.functions.invoke('send-report');
+  const { data, error } = await window.supabaseClient.functions.invoke('dynamic-responder');
 
   btn.disabled = false;
   btn.textContent = 'Envoyer un rapport';
