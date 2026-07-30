@@ -97,6 +97,9 @@
   <div class="auth-card" id="carte-admin" style="display:none; margin-top:20px;">
     <h1 style="font-size:19px; text-align:left;">Utilisateurs — Pharmacie</h1>
     <p class="auth-sub" style="text-align:left; margin-bottom:18px;">Visible uniquement par les admins. Change le rôle d'un compte au besoin.</p>
+
+    <div id="zone-demandes"></div>
+
     <div id="liste-utilisateurs"><p class="auth-sub">Chargement…</p></div>
   </div>
 </main>
@@ -325,12 +328,50 @@ document.getElementById('btn-rapport').addEventListener('click', async function(
 
 async function chargerUtilisateurs(){
   const conteneur = document.getElementById('liste-utilisateurs');
+  const zoneDemandes = document.getElementById('zone-demandes');
 
   const { data: utilisateurs, error } = await window.supabaseClient
     .from('profiles')
-    .select('id, nom_complet, role, created_at')
+    .select('id, nom_complet, role, created_at, demande_role, justification_role')
     .eq('discipline', 'pharmacie')
     .order('created_at', { ascending: false });
+
+  // ---- demandes du rôle enseignant en attente ----
+  const demandes = (utilisateurs || []).filter(function(u){ return u.demande_role === 'enseignant'; });
+  zoneDemandes.innerHTML = '';
+  if (demandes.length > 0) {
+    demandes.forEach(function(d){
+      const carte = document.createElement('div');
+      carte.className = 'demande-card';
+      carte.innerHTML =
+        '<div class="demande-nom">' + (d.nom_complet || 'Sans nom') + ' <span class="demande-tag">demande enseignant</span></div>' +
+        '<p class="demande-justif">' + (d.justification_role || '(aucune justification fournie)') + '</p>' +
+        '<div class="demande-actions">' +
+          '<button class="demande-btn approuver" data-id="' + d.id + '">Approuver</button>' +
+          '<button class="demande-btn refuser" data-id="' + d.id + '">Refuser</button>' +
+        '</div>';
+      zoneDemandes.appendChild(carte);
+    });
+
+    zoneDemandes.querySelectorAll('.approuver').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        btn.disabled = true; btn.textContent = '…';
+        await window.supabaseClient.from('profiles').update({
+          role: 'enseignant', demande_role: null, justification_role: null
+        }).eq('id', btn.getAttribute('data-id'));
+        chargerUtilisateurs();
+      });
+    });
+    zoneDemandes.querySelectorAll('.refuser').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        btn.disabled = true; btn.textContent = '…';
+        await window.supabaseClient.from('profiles').update({
+          demande_role: null, justification_role: null
+        }).eq('id', btn.getAttribute('data-id'));
+        chargerUtilisateurs();
+      });
+    });
+  }
 
   if (error || !utilisateurs) {
     conteneur.innerHTML = '<p class="auth-sub">Impossible de charger la liste.</p>';
