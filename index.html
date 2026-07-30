@@ -51,6 +51,7 @@
       </div>
     </div>
 
+    <a href="dashboard.html" id="lien-dashboard" style="display:none;">Tableau de bord</a>
     <a class="btn-connexion" id="btn-connexion" href="connexion.html">Connexion</a>
   </nav>
 </header>
@@ -156,9 +157,11 @@
 // bascule Connexion / Déconnexion selon l'état de session
 (async function(){
   var btnConnexion = document.getElementById('btn-connexion');
+  var lienDashboard = document.getElementById('lien-dashboard');
   const { data: { session } } = await window.supabaseClient.auth.getSession();
 
   if (session) {
+    lienDashboard.style.display = '';
     btnConnexion.textContent = 'Déconnexion';
     btnConnexion.setAttribute('href', '#');
     btnConnexion.addEventListener('click', async function(e){
