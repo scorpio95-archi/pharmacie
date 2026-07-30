@@ -453,6 +453,47 @@ footer{ margin: 64px 24px 44px; text-align:center; font-size:13px; color: var(--
 .statut-pill.valide{ background: var(--vert-clair); color: var(--vert-fonce); }
 .statut-pill.rejete{ background:#FBE7E2; color:#9B3B24; }
 
+/* ---------- Statistiques admin ---------- */
+.stats-inscrits{
+  display:flex; align-items:baseline; gap:8px;
+  margin-bottom: 18px;
+}
+.stats-live-dot{
+  width:8px; height:8px; border-radius:50%; background: var(--vert);
+  align-self:center;
+  animation: pulse-live 1.8s ease-in-out infinite;
+}
+@keyframes pulse-live{
+  0%,100%{ opacity:1; } 50%{ opacity:.3; }
+}
+#stats-inscrits-nombre{
+  font-family:'Bricolage Grotesque', sans-serif; font-weight:800; font-size:28px; color: var(--encre);
+}
+.stats-inscrits-label{
+  font-size:13px; color: var(--encre); opacity:.7;
+}
+
+.stats-grid{
+  display:grid; grid-template-columns: repeat(3,1fr); gap:10px;
+  margin-bottom: 26px;
+}
+.stats-card{
+  border-radius:18px; padding:14px 10px; text-align:center;
+  display:flex; flex-direction:column; gap:4px;
+}
+.stats-card.attente{ background:#F3EDD8; }
+.stats-card.valide{ background: var(--vert-clair); }
+.stats-card.rejete{ background:#FBE7E2; }
+.stats-card-nombre{ font-family:'Bricolage Grotesque', sans-serif; font-weight:800; font-size:22px; color: var(--encre); }
+.stats-card-label{ font-size:11px; color: var(--encre); opacity:.7; }
+
+.stats-chart-titre{
+  font-family:'JetBrains Mono', monospace; font-size:11px;
+  letter-spacing:.06em; text-transform:uppercase;
+  color: var(--vert-fonce); margin-bottom:10px;
+}
+#stats-chart{ max-height:160px; }
+
 /* ---------- FAB : nouvelle soumission ---------- */
 .fab-container{
   position: fixed; right: 22px; bottom: 22px; z-index: 40;
