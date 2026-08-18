@@ -66,6 +66,33 @@
     <p>De la molécule au comptoir de l'officine — l'archive des étudiants en pharmacie haïtiens, un comprimé à la fois.</p>
   </section>
 
+  <!-- ---------- compteurs live ---------- -->
+  <div class="stats-strip" id="stats-strip">
+    <div class="stat-strip-item">
+      <span class="stat-strip-num" id="stat-inscrits">—</span>
+      <span class="stat-strip-label">Inscrits<span class="stats-live-dot"></span></span>
+    </div>
+    <div class="stat-strip-item">
+      <span class="stat-strip-num" id="stat-travaux">—</span>
+      <span class="stat-strip-label">Travaux archivés</span>
+    </div>
+    <div class="stat-strip-item">
+      <span class="stat-strip-num" id="stat-ateliers">5</span>
+      <span class="stat-strip-label">Ateliers actifs</span>
+    </div>
+  </div>
+
+  <!-- ---------- bannière image : remplace par ta propre photo quand tu veux ----------
+       Décommente la ligne <img> ci-dessous et colle l'URL publique (upload-la dans
+       un bucket Supabase Storage public, ou un lien direct vers une image que tu héberges). -->
+  <div class="banniere-image">
+    <!-- <img src="COLLE_TON_URL_IMAGE_ICI" alt=""> -->
+    <div class="banniere-image-texte">
+      <span>Lakou Pharmacie</span>
+      <p>La mémoire pharmaceutique haïtienne s'écrit ici, une contribution à la fois.</p>
+    </div>
+  </div>
+
   <div id="filiere" class="section-label"><span>La filière</span><div class="line"></div></div>
   <p class="section-intro">Rattachée à la Faculté de Médecine et de Pharmacie de l'UEH, la section Pharmacie forme chaque année une quarantaine d'étudiants sur concours — la seule voie en Haïti vers le diplôme de pharmacien.</p>
 
@@ -79,81 +106,243 @@
   <div class="score-line" style="margin-top:52px;"></div>
 
   <div id="archive" class="section-label"><span>Dans l'archive</span><div class="line"></div></div>
-  <p class="section-intro">Quatre gélules-ateliers, quatre familles de travaux. Tapote une gélule : elle s'ouvre en deux pour laisser apparaître ce qu'elle contient.</p>
+  <p class="section-intro">Cinq bannières-ateliers, cinq familles de contributions. Tapote « Voir davantage » pour ouvrir la fiche et découvrir ce que chacune contient.</p>
 
-  <div class="gelule-grid">
+  <div class="gelule-grid" id="gelule-grid"></div>
 
-    <button class="gelule" aria-expanded="false" data-vert="a">
-      <span class="gelule-shell">
-        <span class="half half-a" style="background:var(--vert-a)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16M6 19V9l6-5 6 5v10M10 19v-6h4v6"/></svg>
-        </span>
-        <span class="gelule-label">Mémoire de stage</span>
-        <span class="gelule-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
-        <span class="half half-b" style="background:#fff;border:1.5px solid var(--vert-a)"></span>
-      </span>
-      <span class="gelule-hint">↳ tapoter pour ouvrir</span>
-      <span class="gelule-detail">
-        <span class="gelule-tag">Stage</span>
-        <p class="gelule-desc">Stage en officine ou en industrie, validé par le maître de stage — dispensation, gestion, conseil au comptoir.</p>
-      </span>
-    </button>
-
-    <button class="gelule" aria-expanded="false" data-vert="b">
-      <span class="gelule-shell">
-        <span class="half half-a" style="background:var(--vert-b)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="3" width="10" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
-        </span>
-        <span class="gelule-label">Fiche médicament</span>
-        <span class="gelule-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
-        <span class="half half-b" style="background:#fff;border:1.5px solid var(--vert-b)"></span>
-      </span>
-      <span class="gelule-hint">↳ tapoter pour ouvrir</span>
-      <span class="gelule-detail">
-        <span class="gelule-tag">Galénique</span>
-        <p class="gelule-desc">Reconnaissance, posologie et forme galénique — le vocabulaire de base de tout futur pharmacien.</p>
-      </span>
-    </button>
-
-    <button class="gelule" aria-expanded="false" data-vert="c">
-      <span class="gelule-shell">
-        <span class="half half-a" style="background:var(--vert-c)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21c-4-1-7-4-7-9a7 7 0 0114 0c0 5-3 8-7 9z"/><path d="M12 12V6"/></svg>
-        </span>
-        <span class="gelule-label">Fiche plante médicinale</span>
-        <span class="gelule-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
-        <span class="half half-b" style="background:#fff;border:1.5px solid var(--vert-c)"></span>
-      </span>
-      <span class="gelule-hint">↳ tapoter pour ouvrir</span>
-      <span class="gelule-detail">
-        <span class="gelule-tag">Inédit</span>
-        <p class="gelule-desc">Pharmacognosie et ethnobotanique haïtienne — la tradition TRAMIL et la Pharmacopée Végétale Caribéenne, jamais archivées par les étudiants eux-mêmes.</p>
-      </span>
-    </button>
-
-    <button class="gelule" aria-expanded="false" data-vert="d">
-      <span class="gelule-shell">
-        <span class="half half-a" style="background:var(--vert-d)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l5 8a5 5 0 11-10 0l5-8z"/></svg>
-        </span>
-        <span class="gelule-label">Protocole de dispensation</span>
-        <span class="gelule-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
-        <span class="half half-b" style="background:#fff;border:1.5px solid var(--vert-d)"></span>
-      </span>
-      <span class="gelule-hint">↳ tapoter pour ouvrir</span>
-      <span class="gelule-detail">
-        <span class="gelule-tag">Pratique</span>
-        <p class="gelule-desc">Suivi pharmaceutique, éducation thérapeutique du patient et mesures de prévention.</p>
-      </span>
-    </button>
-
-  </div>
+  <!-- ---------- carte admin (auto-synchro avec Paramètres) ---------- -->
+  <div id="zone-admin-card"></div>
 
   <footer><p>Une branche de <strong>Lakou Santé</strong> — réseau Lakou Inivesite.</p></footer>
 
 </main>
 
 <script>
+/* =====================================================================
+   Les 5 bannières-ateliers — chaque source pointe vers une vraie table.
+   pharmacie_hospitalier et pharmacie_associations sont de nouvelles
+   tables : tant que la migration SQL n'a pas été lancée, leur fiche
+   affiche simplement "aucune contribution" au lieu de planter.
+===================================================================== */
+const ATELIERS = [
+  {
+    id: 'archives', vert: 'a', tag: 'Archive',
+    label: 'Archives académiques',
+    desc: "Mémoires, thèses, recherches, posters et travaux étudiants.",
+    icon: '<path d="M4 19h16M6 19V9l6-5 6 5v10M10 19v-6h4v6"/>',
+    sources: [{ table:'pharmacie_stages', titre:'titre', image:'fichier_url' }],
+    page: 'atelier-archives.html'
+  },
+  {
+    id: 'recherche', vert: 'b', tag: 'Recherche',
+    label: 'Pharmacologie & Recherche',
+    desc: "Travaux de recherche, pharmacologie, études, expérimentations, publications et sujets scientifiques.",
+    icon: '<path d="M9 3h6M10 3v6l-5.5 9a2 2 0 001.7 3h11.6a2 2 0 001.7-3L14 9V3"/>',
+    sources: [
+      { table:'pharmacie_plantes', titre:'nom_plante', image:'image_url' },
+      { table:'pharmacie_protocoles', titre:'titre', image:'fichier_url' }
+    ],
+    page: 'atelier-recherche.html'
+  },
+  {
+    id: 'hospitaliere', vert: 'c', tag: 'Pratique',
+    label: 'Pharmacie hospitalière',
+    desc: "Pratique hospitalière, expériences, organisation, parcours, cas pédagogiques et connaissances liées au milieu hospitalier.",
+    icon: '<path d="M4 21V9l8-6 8 6v12"/><path d="M12 21v-7M9 17h6"/>',
+    sources: [{ table:'pharmacie_hospitalier', titre:'titre', image:'fichier_url' }],
+    page: 'atelier-hospitaliere.html'
+  },
+  {
+    id: 'veille', vert: 'd', tag: 'Veille',
+    label: 'Veille pharmaceutique',
+    desc: "Nouvelles molécules, informations scientifiques, changements réglementaires, alertes, innovations, découvertes et actualités du secteur.",
+    icon: '<path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 003.4 0"/>',
+    sources: [{ table:'pharmacie_medicaments', titre:'nom_medicament', image:'image_url' }],
+    page: 'atelier-veille.html'
+  },
+  {
+    id: 'associations', vert: 'e', tag: 'Communauté',
+    label: 'Associations / Collectifs',
+    desc: "Associations étudiantes, groupes professionnels, promotions, organisations et initiatives pharmaceutiques.",
+    icon: '<circle cx="9" cy="8" r="3"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17" cy="9" r="2.4"/><path d="M15 20c.3-2 1.8-3.6 4-4.2"/>',
+    sources: [{ table:'pharmacie_associations', titre:'nom', image:'image_url' }],
+    page: 'atelier-associations.html'
+  }
+];
+
+/* ---------- rendu des 5 gélules-bannières ---------- */
+const grille = document.getElementById('gelule-grid');
+
+ATELIERS.forEach(function(atelier){
+  const el = document.createElement('div');
+  el.className = 'gelule';
+  el.setAttribute('data-open', 'false');
+  el.innerHTML =
+    '<div class="gelule-shell">' +
+      '<span class="half half-a" style="background:var(--vert-' + atelier.vert + ')">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' + atelier.icon + '</svg>' +
+      '</span>' +
+      '<span class="gelule-label">' + atelier.label + '</span>' +
+      '<button class="gelule-toggle" type="button" aria-expanded="false">' +
+        'Voir davantage' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>' +
+      '</button>' +
+      '<span class="half half-b" style="background:#fff;border:1.5px solid var(--vert-' + atelier.vert + ')"></span>' +
+    '</div>' +
+    '<div class="gelule-detail">' +
+      '<span class="gelule-tag">' + atelier.tag + '</span>' +
+      '<p class="gelule-desc">' + atelier.desc + '</p>' +
+      '<div class="gelule-fiche" data-fiche></div>' +
+    '</div>';
+
+  const toggle = el.querySelector('.gelule-toggle');
+  let charge = false;
+
+  toggle.addEventListener('click', function(){
+    const ouvert = toggle.getAttribute('aria-expanded') === 'true';
+
+    // referme les autres gélules ouvertes pour garder l'ambiance propre
+    document.querySelectorAll('.gelule[data-open="true"]').forEach(function(autre){
+      if (autre !== el) {
+        autre.setAttribute('data-open', 'false');
+        autre.querySelector('.gelule-toggle').setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    toggle.setAttribute('aria-expanded', String(!ouvert));
+    el.setAttribute('data-open', String(!ouvert));
+
+    if (!ouvert && !charge) {
+      charge = true;
+      chargerFiche(atelier, el.querySelector('[data-fiche]'));
+    }
+  });
+
+  grille.appendChild(el);
+});
+
+/* ---------- fiche façon "fiche médicament" : dernières contributions validées ---------- */
+async function chargerFiche(atelier, conteneur){
+  conteneur.innerHTML = '<p class="gelule-loading">Chargement…</p>';
+
+  let items = [];
+
+  await Promise.all(atelier.sources.map(async function(src){
+    const champs = 'id, status, created_at, ' + src.titre + (src.image ? ', ' + src.image : '');
+    const { data, error } = await window.supabaseClient
+      .from(src.table)
+      .select(champs)
+      .eq('status', 'valide')
+      .order('created_at', { ascending: false })
+      .limit(3);
+
+    if (!error && data) {
+      data.forEach(function(row){
+        items.push({
+          titre: row[src.titre] || '(sans titre)',
+          image: src.image ? row[src.image] : null,
+          date: row.created_at
+        });
+      });
+    }
+  }));
+
+  items.sort(function(a, b){ return new Date(b.date) - new Date(a.date); });
+  items = items.slice(0, 3);
+
+  let html = '<div class="entry-grid">';
+  if (items.length === 0) {
+    html += '<div class="entry-slot placeholder">Aucune contribution validée pour le moment — sois le premier à déposer.</div>';
+  } else {
+    items.forEach(function(it){
+      const d = new Date(it.date);
+      const dateTexte = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+      html +=
+        '<div class="entry-slot">' +
+          '<span class="slot-image">' +
+            (it.image
+              ? '<img src="' + it.image + '" alt="">'
+              : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' + atelier.icon + '</svg>') +
+          '</span>' +
+          '<span class="slot-title">' + it.titre + '</span>' +
+          '<span class="slot-meta">' + dateTexte + '</span>' +
+        '</div>';
+    });
+  }
+  html += '</div>';
+
+  html +=
+    '<a class="btn-dossier" href="' + atelier.page + '">Voir l\'atelier ' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>' +
+    '</a>';
+
+  conteneur.innerHTML = html;
+}
+
+/* ---------- compteurs live sous le hero ---------- */
+async function chargerCompteurs(){
+  const tables = [
+    'pharmacie_stages', 'pharmacie_medicaments', 'pharmacie_plantes',
+    'pharmacie_protocoles', 'pharmacie_hospitalier', 'pharmacie_associations'
+  ];
+
+  const { count: nbInscrits } = await window.supabaseClient
+    .from('profiles')
+    .select('*', { count: 'exact', head: true })
+    .eq('discipline', 'pharmacie');
+  document.getElementById('stat-inscrits').textContent = nbInscrits ?? 0;
+
+  const comptes = await Promise.all(tables.map(function(t){
+    return window.supabaseClient
+      .from(t)
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'valide');
+  }));
+  const total = comptes.reduce(function(somme, r){ return somme + (r.error ? 0 : (r.count || 0)); }, 0);
+  document.getElementById('stat-travaux').textContent = total;
+
+  window.supabaseClient
+    .channel('profiles-pharmacie-home')
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'profiles', filter: 'discipline=eq.pharmacie' },
+      function(){
+        const el = document.getElementById('stat-inscrits');
+        el.textContent = (parseInt(el.textContent, 10) || 0) + 1;
+      }
+    )
+    .subscribe();
+}
+chargerCompteurs();
+
+/* ---------- carte admin (bas de page, synchro Paramètres) ---------- */
+async function chargerAdminCard(){
+  const { data, error } = await window.supabaseClient
+    .from('profiles')
+    .select('nom_complet, avatar_url, created_at')
+    .eq('discipline', 'pharmacie')
+    .eq('role', 'admin')
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  const zone = document.getElementById('zone-admin-card');
+  if (error || !data) { return; }
+
+  const initiale = (data.nom_complet || 'A').trim().charAt(0).toUpperCase();
+  zone.innerHTML =
+    '<div class="admin-card">' +
+      (data.avatar_url
+        ? '<img class="admin-avatar" src="' + data.avatar_url + '" alt="">'
+        : '<span class="admin-avatar-fallback">' + initiale + '</span>') +
+      '<div>' +
+        '<div class="admin-card-tag">Administrateur</div>' +
+        '<div class="admin-card-name">' + (data.nom_complet || 'Sans nom') + '</div>' +
+        '<div class="admin-card-meta">Lakou Pharmacie — Réseau Lakou Inivesite</div>' +
+      '</div>' +
+    '</div>';
+}
+chargerAdminCard();
+
 // bascule Connexion / Déconnexion selon l'état de session
 (async function(){
   var btnConnexion = document.getElementById('btn-connexion');
@@ -198,21 +387,10 @@ dropdownToggle.addEventListener('click', function(e){
   dropdown.classList.toggle('open', !open);
 });
 document.addEventListener('click', function(e){
-  if(!dropdown.contains(e.target)){
+  if (!dropdown.contains(e.target)) {
     dropdownToggle.setAttribute('aria-expanded', 'false');
     dropdown.classList.remove('open');
   }
-});
-
-document.querySelectorAll('.gelule').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    var expanded = btn.getAttribute('aria-expanded') === 'true';
-    // ferme les autres gélules ouvertes pour garder l'ambiance propre
-    document.querySelectorAll('.gelule[aria-expanded="true"]').forEach(function(o){
-      if(o !== btn) o.setAttribute('aria-expanded', 'false');
-    });
-    btn.setAttribute('aria-expanded', String(!expanded));
-  });
 });
 </script>
 
