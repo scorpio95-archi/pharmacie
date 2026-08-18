@@ -37,7 +37,20 @@
   <nav class="nav">
     <a href="#top">Accueil</a>
     <a href="#filiere">La filière</a>
-    <a href="#archive">Dans l'archive</a>
+
+    <div class="nav-dropdown">
+      <button class="dropdown-toggle" aria-expanded="false">
+        Ateliers
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="dropdown-menu">
+        <a href="atelier-archives.html">Archives académiques</a>
+        <a href="atelier-recherche.html">Pharmacologie & Recherche</a>
+        <a href="atelier-hospitaliere.html">Pharmacie hospitalière</a>
+        <a href="atelier-veille.html">Veille pharmaceutique</a>
+        <a href="atelier-associations.html">Associations / Collectifs</a>
+      </div>
+    </div>
 
     <div class="nav-dropdown">
       <button class="dropdown-toggle" aria-expanded="false">
@@ -377,20 +390,27 @@ nav.querySelectorAll('a:not(.dropdown-menu a)').forEach(function(a){
   });
 });
 
-// liste déroulante Réseau
-var dropdownToggle = document.querySelector('.dropdown-toggle');
-var dropdown = document.querySelector('.nav-dropdown');
-dropdownToggle.addEventListener('click', function(e){
-  e.stopPropagation();
-  var open = dropdownToggle.getAttribute('aria-expanded') === 'true';
-  dropdownToggle.setAttribute('aria-expanded', String(!open));
-  dropdown.classList.toggle('open', !open);
+// listes déroulantes de la nav (Ateliers, Réseau)
+document.querySelectorAll('.nav-dropdown').forEach(function(dropdown){
+  var toggle = dropdown.querySelector('.dropdown-toggle');
+  toggle.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = toggle.getAttribute('aria-expanded') === 'true';
+    document.querySelectorAll('.nav-dropdown').forEach(function(d){
+      d.classList.remove('open');
+      d.querySelector('.dropdown-toggle').setAttribute('aria-expanded', 'false');
+    });
+    toggle.setAttribute('aria-expanded', String(!open));
+    dropdown.classList.toggle('open', !open);
+  });
 });
 document.addEventListener('click', function(e){
-  if (!dropdown.contains(e.target)) {
-    dropdownToggle.setAttribute('aria-expanded', 'false');
-    dropdown.classList.remove('open');
-  }
+  document.querySelectorAll('.nav-dropdown.open').forEach(function(d){
+    if (!d.contains(e.target)) {
+      d.classList.remove('open');
+      d.querySelector('.dropdown-toggle').setAttribute('aria-expanded', 'false');
+    }
+  });
 });
 </script>
 
