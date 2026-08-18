@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmacologie & Recherche — Lakou Pharmacie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body>
+
+<div class="atmosphere"><span></span><span></span><span></span><span></span></div>
+
+<div class="breadcrumb">
+  <a href="index.html">🏠 Lakou Pharmacie</a>
+  <span class="sep">›</span>
+  <span class="current">Pharmacologie & Recherche</span>
+</div>
+
+<header>
+  <a href="index.html" class="logo-link">
+    <svg class="logo-mark" viewBox="0 0 40 40" fill="none">
+      <rect x="7" y="14" width="26" height="12" rx="6" fill="#1F7A54" stroke="#145C3E" stroke-width="1.4"/>
+      <path d="M20 14v12" stroke="#FCFDFB" stroke-width="1.4" stroke-dasharray="1.6 2.4"/>
+    </svg>
+    <span class="logo-text">LAKOU<span>Pharmacie</span></span>
+  </a>
+
+  <button class="menu-toggle" aria-label="Menu" aria-expanded="false">
+    <svg class="icon-burger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+
+  <nav class="nav">
+    <a href="#top">Accueil</a>
+    <a href="#filiere">La filière</a>
+
+    <div class="nav-dropdown">
+      <button class="dropdown-toggle" aria-expanded="false">
+        Ateliers
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="dropdown-menu">
+        <a href="atelier-archives.html">Archives académiques</a>
+        <a href="atelier-recherche.html">Pharmacologie & Recherche</a>
+        <a href="atelier-hospitaliere.html">Pharmacie hospitalière</a>
+        <a href="atelier-veille.html">Veille pharmaceutique</a>
+        <a href="atelier-associations.html">Associations / Collectifs</a>
+      </div>
+    </div>
+
+    <div class="nav-dropdown">
+      <button class="dropdown-toggle" aria-expanded="false">
+        Réseau
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="dropdown-menu">
+        <a href="https://lakou-sante.vercel.app/">🏠 Lakou Santé</a>
+        <a href="https://lakou-medecine.vercel.app/">Lakou Médecine</a>
+        <div class="disabled">Sciences infirmières <span class="tag-soon">Bientôt</span></div>
+      </div>
+    </div>
+
+    <a href="dashboard.html" id="lien-dashboard" style="display:none;">Tableau de bord</a>
+    <a class="btn-connexion" id="btn-connexion" href="connexion.html">Connexion</a>
+</nav>
+</header>
+
+<main>
+
+  <div class="atelier-hero">
+    <span class="half" style="background:var(--vert-b);display:inline-flex;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6M10 3v6l-5.5 9a2 2 0 001.7 3h11.6a2 2 0 001.7-3L14 9V3"/></svg>
+    </span>
+    <h1>Pharmacologie & Recherche</h1>
+    <p>Travaux de recherche, pharmacologie, études, expérimentations, publications et sujets scientifiques.</p>
+  </div>
+
+  <div class="liste-grid" id="liste-grid">
+    <p class="liste-loading">Chargement…</p>
+  </div>
+
+  <div class="liste-cta">
+    Envie de contribuer ? <a href="dashboard.html">Connecte-toi et dépose depuis ton tableau de bord →</a>
+  </div>
+
+  <footer><p>Une branche de <strong>Lakou Santé</strong> — réseau Lakou Inivesite.</p></footer>
+
+</main>
+
+<script>
+const ATELIER = {
+  icon: '<path d="M9 3h6M10 3v6l-5.5 9a2 2 0 001.7 3h11.6a2 2 0 001.7-3L14 9V3"/>',
+  sources: [{"table": "pharmacie_plantes", "image": "image_url", "tag": "Plante médicinale", "meta": ["nom_local", "famille_botanique"]}, {"table": "pharmacie_protocoles", "image": "fichier_url", "tag": "Protocole", "meta": []}]
+};
+
+async function chargerListe(){
+  const conteneur = document.getElementById('liste-grid');
+  let items = [];
+
+  await Promise.all(ATELIER.sources.map(async function(src){
+    const { data, error } = await window.supabaseClient
+      .from(src.table)
+      .select('*')
+      .eq('status', 'valide')
+      .order('created_at', { ascending: false });
+    if (!error && data) {
+      data.forEach(function(row){
+        items.push({
+          titre: row.titre || row.nom_medicament || row.nom_plante || row.nom || '(sans titre)',
+          image: src.image ? row[src.image] : null,
+          desc: row.description || row.usages_traditionnels || row.contexte || row.cas_pedagogique || '',
+          meta: (src.meta || []).map(function(champ){ return row[champ]; }).filter(Boolean).join(' · '),
+          fichier: row.fichier_url || null,
+          tag: src.tag || null,
+          date: row.created_at
+        });
+      });
+    }
+  }));
+
+  items.sort(function(a, b){ return new Date(b.date) - new Date(a.date); });
+
+  if (items.length === 0) {
+    conteneur.innerHTML = '<p class="liste-empty">Aucune contribution validée pour le moment — sois le premier à déposer depuis le tableau de bord.</p>';
+    return;
+  }
+
+  conteneur.innerHTML = '';
+  items.forEach(function(it){
+    const d = new Date(it.date);
+    const dateTexte = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+
+    const carte = document.createElement('div');
+    carte.className = 'liste-card';
+    carte.innerHTML =
+      '<span class="liste-card-image">' +
+        (it.image
+          ? '<img src="' + it.image + '" alt="">'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' + ATELIER.icon + '</svg>') +
+      '</span>' +
+      '<span class="liste-card-corps">' +
+        (it.tag ? '<span class="liste-card-tag">' + it.tag + '</span>' : '') +
+        '<div class="liste-card-titre">' + it.titre + '</div>' +
+        '<div class="liste-card-meta">' + (it.meta ? it.meta + ' · ' : '') + dateTexte + '</div>' +
+        '<div class="liste-card-desc">' + (it.desc || 'Pas de description.') +
+          (it.fichier ? '<br><a class="liste-card-fichier" href="' + it.fichier + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">📎 Voir le fichier</a>' : '') +
+        '</div>' +
+      '</span>';
+
+    carte.addEventListener('click', function(){ carte.classList.toggle('open'); });
+    conteneur.appendChild(carte);
+  });
+}
+chargerListe();
+
+// bascule Connexion / Déconnexion selon l'état de session
+(async function(){
+  var btnConnexion = document.getElementById('btn-connexion');
+  var lienDashboard = document.getElementById('lien-dashboard');
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+  if (session) {
+    lienDashboard.style.display = '';
+    btnConnexion.textContent = 'Déconnexion';
+    btnConnexion.setAttribute('href', '#');
+    btnConnexion.addEventListener('click', async function(e){
+      e.preventDefault();
+      await window.supabaseClient.auth.signOut();
+      window.location.reload();
+    });
+  }
+})();
+
+// menu mobile (burger)
+var menuToggle = document.querySelector('.menu-toggle');
+var nav = document.querySelector('.nav');
+menuToggle.addEventListener('click', function(){
+  var open = menuToggle.getAttribute('aria-expanded') === 'true';
+  menuToggle.setAttribute('aria-expanded', String(!open));
+  nav.classList.toggle('open', !open);
+});
+nav.querySelectorAll('a:not(.dropdown-menu a)').forEach(function(a){
+  a.addEventListener('click', function(){
+    nav.classList.remove('open');
+    menuToggle.setAttribute('aria-expanded', 'false');
+  });
+});
+
+// listes déroulantes de la nav (Ateliers, Réseau)
+document.querySelectorAll('.nav-dropdown').forEach(function(dropdown){
+  var toggle = dropdown.querySelector('.dropdown-toggle');
+  toggle.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = toggle.getAttribute('aria-expanded') === 'true';
+    document.querySelectorAll('.nav-dropdown').forEach(function(d){
+      d.classList.remove('open');
+      d.querySelector('.dropdown-toggle').setAttribute('aria-expanded', 'false');
+    });
+    toggle.setAttribute('aria-expanded', String(!open));
+    dropdown.classList.toggle('open', !open);
+  });
+});
+document.addEventListener('click', function(e){
+  document.querySelectorAll('.nav-dropdown.open').forEach(function(d){
+    if (!d.contains(e.target)) {
+      d.classList.remove('open');
+      d.querySelector('.dropdown-toggle').setAttribute('aria-expanded', 'false');
+    }
+  });
+});
+</script>
+
+</body>
+</html>
