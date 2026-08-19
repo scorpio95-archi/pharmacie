@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mes dossiers — Lakou Pharmacie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body>
+
+<div id="lakou-header"></div>
+
+<div class="breadcrumb">
+  <a href="index.html">🏠 Lakou Pharmacie</a>
+  <span class="sep">›</span>
+  <span class="current">Mes dossiers</span>
+</div>
+
+<main>
+
+  <div class="atelier-hero">
+    <span class="half" style="background:var(--vert-fonce);display:inline-flex;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h5l2 2h11v10a2 2 0 01-2 2H3V7z"/></svg>
+    </span>
+    <h1>Mes dossiers</h1>
+    <p>Toutes tes contributions, tous ateliers confondus — en attente, validées ou rejetées.</p>
+  </div>
+
+  <div class="liste-grid" id="dossiers-grid">
+    <p class="liste-loading">Chargement…</p>
+  </div>
+
+  <footer><p>Une branche de <strong>Lakou Santé</strong> — réseau Lakou Inivesite.</p></footer>
+
+</main>
+
+<script>
+const MES_SOURCES = [
+  { table: 'pharmacie_stages',      atelier: 'Archives académiques',       titreChamp: 'titre',          image: 'fichier_url' },
+  { table: 'pharmacie_plantes',     atelier: 'Pharmacologie & Recherche',  titreChamp: 'nom_plante',     image: 'image_url' },
+  { table: 'pharmacie_protocoles',  atelier: 'Pharmacologie & Recherche',  titreChamp: 'titre',          image: 'fichier_url' },
+  { table: 'pharmacie_hospitalier', atelier: 'Pharmacie hospitalière',     titreChamp: 'titre',          image: 'fichier_url' },
+  { table: 'pharmacie_medicaments', atelier: 'Veille pharmaceutique',      titreChamp: 'nom_medicament', image: 'image_url' },
+  { table: 'pharmacie_associations',atelier: 'Associations / Collectifs',  titreChamp: 'nom',            image: 'image_url' },
+  { table: 'pharmacie_revue',       atelier: 'La Revue',                   titreChamp: 'titre',          image: 'image_url' }
+];
+
+const LIBELLE_STATUT = { en_attente: 'Soumis', valide: 'Validé', rejete: 'Rejeté' };
+
+(async function(){
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+  if (!session) { window.location.href = 'connexion.html'; return; }
+  chargerMesDossiers(session.user.id);
+})();
+
+async function chargerMesDossiers(userId){
+  const conteneur = document.getElementById('dossiers-grid');
+  let items = [];
+
+  await Promise.all(MES_SOURCES.map(async function(src){
+    const { data, error } = await window.supabaseClient
+      .from(src.table)
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      data.forEach(function(row){
+        items.push({
+          titre: row[src.titreChamp] || '(sans titre)',
+          image: src.image ? row[src.image] : null,
+          atelier: src.atelier,
+          statut: row.status || 'en_attente',
+          date: row.created_at
+        });
+      });
+    }
+  }));
+
+  if (items.length === 0) {
+    conteneur.innerHTML = '<p class="liste-empty">Tu n\'as encore rien déposé — direction le tableau de bord pour ta première contribution.</p>';
+    return;
+  }
+
+  items.sort(function(a, b){ return new Date(b.date) - new Date(a.date); });
+
+  conteneur.innerHTML = '';
+  items.forEach(function(it){
+    const d = new Date(it.date);
+    const dateTexte = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+
+    const carte = document.createElement('div');
+    carte.className = 'liste-card';
+    carte.innerHTML =
+      '<span class="liste-card-image">' +
+        (it.image
+          ? '<img src="' + it.image + '" alt="">'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3v4a1 1 0 001 1h4M6 21h12a2 2 0 002-2V7l-5-5H6a2 2 0 00-2 2v15a2 2 0 002 2z"/></svg>') +
+      '</span>' +
+      '<span class="liste-card-corps">' +
+        '<span class="liste-card-tag">' + it.atelier + '</span>' +
+        '<span class="liste-card-badge ' + it.statut + '">' + (LIBELLE_STATUT[it.statut] || it.statut) + '</span>' +
+        '<div class="liste-card-titre">' + it.titre + '</div>' +
+        '<div class="liste-card-meta">' + dateTexte + '</div>' +
+      '</span>';
+    conteneur.appendChild(carte);
+  });
+}
+</script>
+
+<script src="nav.js"></script>
+
+</body>
+</html>
