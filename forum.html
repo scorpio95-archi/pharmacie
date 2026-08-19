@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forum — Lakou Pharmacie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body>
+
+<div id="lakou-header"></div>
+
+<div class="breadcrumb">
+  <a href="index.html">🏠 Lakou Pharmacie</a>
+  <span class="sep">›</span>
+  <span class="current">Forum</span>
+</div>
+
+<main>
+
+  <div class="atelier-hero">
+    <span class="half" style="background:var(--vert-fonce);display:inline-flex;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+    </span>
+    <h1>Forum</h1>
+    <p>L'espace de discussion libre de Lakou Pharmacie — questions, débats, entraide entre étudiants. Lecture ouverte à tous, même sans compte.</p>
+  </div>
+
+  <div class="liste-cta" id="zone-connexion-requise" style="display:none;">
+    <a href="connexion.html">Connecte-toi</a> pour lancer un sujet ou répondre.
+  </div>
+
+  <div class="forum-nouveau" id="zone-nouveau-sujet" style="display:none;">
+    <h1 style="font-size:16px; text-align:left; margin-bottom:14px;">Lancer un sujet</h1>
+    <form id="form-nouveau-sujet">
+      <div class="field">
+        <label for="sujet-titre">Titre du sujet</label>
+        <input type="text" id="sujet-titre" required>
+      </div>
+      <div class="field">
+        <label for="sujet-categorie">Catégorie (optionnel)</label>
+        <input type="text" id="sujet-categorie" placeholder="ex. Concours, Stage, Vie étudiante">
+      </div>
+      <div class="field">
+        <label for="sujet-contenu">Ton message</label>
+        <textarea id="sujet-contenu" rows="4" required></textarea>
+      </div>
+      <button class="btn-primary" type="submit" id="btn-nouveau-sujet">Publier le sujet</button>
+    </form>
+  </div>
+
+  <div class="forum-liste" id="forum-liste">
+    <p class="liste-loading">Chargement…</p>
+  </div>
+
+  <footer><p>Une branche de <strong>Lakou Santé</strong> — réseau Lakou Inivesite.</p></footer>
+
+</main>
+
+<script>
+let sessionCourante = null;
+
+(async function(){
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+  sessionCourante = session;
+  if (session) {
+    document.getElementById('zone-nouveau-sujet').style.display = 'block';
+  } else {
+    document.getElementById('zone-connexion-requise').style.display = 'block';
+  }
+  chargerSujets();
+})();
+
+function formaterDate(iso){
+  const d = new Date(iso);
+  return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+}
+
+async function chargerSujets(){
+  const conteneur = document.getElementById('forum-liste');
+
+  const { data: sujets, error } = await window.supabaseClient
+    .from('pharmacie_forum_sujets')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error || !sujets || sujets.length === 0) {
+    conteneur.innerHTML = '<p class="liste-empty">Aucun sujet pour le moment — sois le premier à lancer une discussion.</p>';
+    return;
+  }
+
+  const idsAuteurs = [...new Set(sujets.map(function(s){ return s.user_id; }))];
+  const { data: profils } = await window.supabaseClient
+    .from('profiles').select('id, nom_complet').in('id', idsAuteurs);
+  const auteurs = {};
+  (profils || []).forEach(function(p){ auteurs[p.id] = p; });
+
+  conteneur.innerHTML = '';
+  sujets.forEach(function(sujet){
+    const nomAuteur = auteurs[sujet.user_id] ? auteurs[sujet.user_id].nom_complet : 'Anonyme';
+
+    const bloc = document.createElement('div');
+    bloc.className = 'forum-sujet';
+    bloc.innerHTML =
+      '<div class="forum-sujet-head">' +
+        (sujet.categorie ? '<span class="liste-card-tag">' + sujet.categorie + '</span>' : '') +
+        '<div class="forum-sujet-titre">' + sujet.titre + '</div>' +
+        '<div class="forum-sujet-meta">' + nomAuteur + ' · ' + formaterDate(sujet.created_at) + '</div>' +
+      '</div>' +
+      '<div class="forum-sujet-corps">' +
+        '<p class="forum-sujet-contenu">' + sujet.contenu + '</p>' +
+        '<div class="forum-reponses" data-reponses></div>' +
+        (sessionCourante
+          ? '<form class="forum-form-reponse" data-form-reponse>' +
+              '<textarea rows="2" placeholder="Répondre…" required></textarea>' +
+              '<button class="btn-primary" type="submit">Répondre</button>' +
+            '</form>'
+          : '<p class="liste-empty" style="padding:14px 0;">Connecte-toi pour répondre.</p>') +
+      '</div>';
+
+    const head = bloc.querySelector('.forum-sujet-head');
+    const corps = bloc.querySelector('.forum-sujet-corps');
+    let charge = false;
+    head.addEventListener('click', function(){
+      const ouvert = corps.classList.toggle('open');
+      if (ouvert && !charge) {
+        charge = true;
+        chargerReponses(sujet.id, bloc.querySelector('[data-reponses]'));
+      }
+    });
+
+    const formReponse = bloc.querySelector('[data-form-reponse]');
+    if (formReponse) {
+      formReponse.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const zoneTexte = formReponse.querySelector('textarea');
+        const texte = zoneTexte.value.trim();
+        if (!texte) return;
+        const btn = formReponse.querySelector('button');
+        btn.disabled = true;
+
+        const { error: erreurReponse } = await window.supabaseClient
+          .from('pharmacie_forum_reponses')
+          .insert({ sujet_id: sujet.id, user_id: sessionCourante.user.id, contenu: texte });
+
+        btn.disabled = false;
+        if (!erreurReponse) {
+          formReponse.reset();
+          chargerReponses(sujet.id, bloc.querySelector('[data-reponses]'));
+        }
+      });
+    }
+
+    conteneur.appendChild(bloc);
+  });
+}
+
+async function chargerReponses(sujetId, conteneur){
+  conteneur.innerHTML = '<p class="liste-loading">Chargement…</p>';
+
+  const { data: reponses, error } = await window.supabaseClient
+    .from('pharmacie_forum_reponses')
+    .select('*')
+    .eq('sujet_id', sujetId)
+    .order('created_at', { ascending: true });
+
+  if (error || !reponses || reponses.length === 0) {
+    conteneur.innerHTML = '<p class="forum-pas-de-reponse">Aucune réponse pour l\'instant.</p>';
+    return;
+  }
+
+  const idsAuteurs = [...new Set(reponses.map(function(r){ return r.user_id; }))];
+  const { data: profils } = await window.supabaseClient
+    .from('profiles').select('id, nom_complet').in('id', idsAuteurs);
+  const auteurs = {};
+  (profils || []).forEach(function(p){ auteurs[p.id] = p; });
+
+  conteneur.innerHTML = reponses.map(function(r){
+    const nomAuteur = auteurs[r.user_id] ? auteurs[r.user_id].nom_complet : 'Anonyme';
+    return '<div class="forum-reponse"><div class="forum-reponse-meta">' + nomAuteur + ' · ' + formaterDate(r.created_at) + '</div><p>' + r.contenu + '</p></div>';
+  }).join('');
+}
+
+const formNouveauSujet = document.getElementById('form-nouveau-sujet');
+formNouveauSujet.addEventListener('submit', async function(e){
+  e.preventDefault();
+  const titre = document.getElementById('sujet-titre').value.trim();
+  const contenu = document.getElementById('sujet-contenu').value.trim();
+  const categorie = document.getElementById('sujet-categorie').value.trim();
+  if (!titre || !contenu) return;
+
+  const btn = document.getElementById('btn-nouveau-sujet');
+  btn.disabled = true; btn.textContent = 'Publication…';
+
+  const { error } = await window.supabaseClient
+    .from('pharmacie_forum_sujets')
+    .insert({ user_id: sessionCourante.user.id, titre: titre, contenu: contenu, categorie: categorie || null });
+
+  btn.disabled = false; btn.textContent = 'Publier le sujet';
+
+  if (!error) {
+    formNouveauSujet.reset();
+    chargerSujets();
+  }
+});
+</script>
+
+<script src="nav.js"></script>
+
+</body>
+</html>
