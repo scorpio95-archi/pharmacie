@@ -12,23 +12,13 @@
 </head>
 <body>
 
-<div class="atmosphere"><span></span><span></span><span></span><span></span></div>
+<div id="lakou-header"></div>
 
 <div class="breadcrumb">
   <a href="dashboard.html">🏠 Tableau de bord</a>
   <span class="sep">›</span>
   <span class="current">Paramètres</span>
 </div>
-
-<header>
-  <a href="index.html" class="logo-link">
-    <svg class="logo-mark" viewBox="0 0 40 40" fill="none">
-      <rect x="7" y="14" width="26" height="12" rx="6" fill="#1F7A54" stroke="#145C3E" stroke-width="1.4"/>
-      <path d="M20 14v12" stroke="#FCFDFB" stroke-width="1.4" stroke-dasharray="1.6 2.4"/>
-    </svg>
-    <span class="logo-text">LAKOU<span>Pharmacie</span></span>
-  </a>
-</header>
 
 <main class="auth-main" style="align-items:flex-start;">
   <div class="auth-card" id="carte-chargement">
@@ -57,6 +47,10 @@
         <div class="field">
           <label for="nom">Nom complet</label>
           <input type="text" id="nom" required>
+        </div>
+        <div class="field">
+          <label for="bio">Bio</label>
+          <textarea id="bio" rows="3" maxlength="240" placeholder="Une ligne sur toi — visible sur ta fiche publique."></textarea>
         </div>
         <div class="field">
           <label>Email</label>
@@ -122,7 +116,7 @@ let sessionCourante = null;
 
   const { data: profil } = await window.supabaseClient
     .from('profiles')
-    .select('nom_complet, role, avatar_url, demande_role, justification_role')
+    .select('nom_complet, role, avatar_url, bio, demande_role, justification_role')
     .eq('id', session.user.id)
     .single();
 
@@ -130,6 +124,7 @@ let sessionCourante = null;
   document.getElementById('carte-parametres').style.display = 'block';
 
   document.getElementById('nom').value = profil?.nom_complet || '';
+  document.getElementById('bio').value = profil?.bio || '';
   document.getElementById('email-affiche').value = session.user.email;
   document.getElementById('role-affiche').value = profil?.role || 'etudiant';
 
@@ -192,7 +187,10 @@ document.getElementById('form-profil').addEventListener('submit', async function
 
   const { error } = await window.supabaseClient
     .from('profiles')
-    .update({ nom_complet: document.getElementById('nom').value.trim() })
+    .update({
+      nom_complet: document.getElementById('nom').value.trim(),
+      bio: document.getElementById('bio').value.trim()
+    })
     .eq('id', sessionCourante.user.id);
 
   btn.disabled = false; btn.textContent = 'Enregistrer';
@@ -259,6 +257,8 @@ document.getElementById('form-demande').addEventListener('submit', async functio
   msg.className = 'auth-form-message show success';
 });
 </script>
+
+<script src="nav.js"></script>
 
 </body>
 </html>
