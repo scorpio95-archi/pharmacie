@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confidentialité — Lakou Pharmacie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body>
+
+<div id="lakou-header"></div>
+
+<div class="breadcrumb">
+  <a href="index.html">🏠 Lakou Pharmacie</a>
+  <span class="sep">›</span>
+  <span class="current">Confidentialité</span>
+</div>
+
+<main>
+
+  <div class="atelier-hero">
+    <span class="half" style="background:var(--vert-fonce);display:inline-flex;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+    </span>
+    <h1>Confidentialité</h1>
+    <p>Ce que Lakou Pharmacie fait de tes données — sans détour.</p>
+  </div>
+
+  <div class="contenu-statique">
+
+    <h2>Ce qui est collecté</h2>
+    <p>À l'inscription : ton nom complet et ton email. Si tu complètes ton profil : une photo et une courte bio. Pour chaque contribution : le contenu que tu soumets (titre, description, fichier ou image) et son statut de validation.</p>
+
+    <h2>Ce qui n'est jamais collecté</h2>
+    <p>Aucun tracker publicitaire, aucun cookie de profilage, aucune revente de données à des tiers. Lakou Pharmacie ne diffuse pas de publicité.</p>
+
+    <h2>Qui voit quoi</h2>
+    <ul>
+      <li>Une contribution <strong>en attente</strong> n'est visible que par toi et le personnel enseignant/admin.</li>
+      <li>Une contribution <strong>validée</strong> devient publique, y compris pour les visiteurs sans compte.</li>
+      <li>Ton nom complet est visible publiquement s'il accompagne une contribution validée. Ton email ne l'est jamais.</li>
+      <li>Dans le Forum, ton nom accompagne tes sujets et réponses ; la lecture y est ouverte à tous.</li>
+    </ul>
+
+    <h2>Où c'est hébergé</h2>
+    <p>La base de données et les fichiers sont hébergés sur <strong>Supabase</strong>, le site lui-même sur <strong>Vercel</strong>. Les emails envoyés depuis le formulaire de contact transitent par <strong>Resend</strong>. Ce sont les trois seuls tiers impliqués dans le fonctionnement du site.</p>
+
+    <h2>Tes droits</h2>
+    <p>Tu peux demander la correction ou la suppression de tes données à tout moment via la page <a href="contact.html">Contact</a>. Les fichiers que tu as toi-même déposés restent sous ta responsabilité : contacte l'administrateur si tu veux qu'un dépôt spécifique soit retiré.</p>
+
+    <h2>Un mot sur la sécurité</h2>
+    <p>L'accès aux données suit des règles strictes au niveau de la base (chaque personne ne peut modifier que ce qui lui appartient), et les changements de rôle (étudiant → enseignant/admin) sont verrouillés pour éviter tout accès non autorisé.</p>
+
+  </div>
+
+  <footer><p>Une branche de <strong>Lakou Santé</strong> — réseau Lakou Inivesite.</p></footer>
+
+</main>
+
+<script src="partials/nav.js"></script>
+
+</body>
+</html>
