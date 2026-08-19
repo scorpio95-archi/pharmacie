@@ -40,7 +40,10 @@
       🎓 Tu es enseignant·e ? <strong>Demande ton statut dans Paramètres →</strong>
     </a>
 
-    
+    <div class="auth-form-message show" style="background:var(--vert-clair); color:var(--vert-fonce); text-align:center;">
+      Les validations et la section Statistiques arrivent dans une prochaine étape.
+    </div>
+
     <a href="index.html" class="btn-primary" style="display:block; text-decoration:none; margin-top:6px;">Retour à l'accueil</a>
   </div>
 
@@ -111,6 +114,18 @@
       <span class="fab-badge badge-gelule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16M6 19V9l6-5 6 5v10M10 19v-6h4v6"/></svg></span>
       <span class="fab-label">Mémoire de stage</span>
     </button>
+    <button class="fab-item" data-type="revue">
+      <span class="fab-badge badge-revue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 006.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15z"/></svg></span>
+      <span class="fab-label">Billet — La Revue</span>
+    </button>
+    <button class="fab-item" data-type="hospitaliere">
+      <span class="fab-badge badge-hospitaliere"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21V9l8-6 8 6v12"/><path d="M12 21v-7M9 17h6"/></svg></span>
+      <span class="fab-label">Pharmacie hospitalière</span>
+    </button>
+    <button class="fab-item" data-type="association">
+      <span class="fab-badge badge-association"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17" cy="9" r="2.4"/><path d="M15 20c.3-2 1.8-3.6 4-4.2"/></svg></span>
+      <span class="fab-label">Association / Collectif</span>
+    </button>
   </div>
   <button class="fab-main" id="fab-main" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
@@ -171,7 +186,10 @@ const TYPES_SOUMISSION = [
   { table:'pharmacie_stages', label:'Mémoire de stage', badge:'badge-gelule', champTitre:'titre' },
   { table:'pharmacie_medicaments', label:'Fiche médicament', badge:'badge-comprime', champTitre:'nom_medicament' },
   { table:'pharmacie_plantes', label:'Fiche plante médicinale', badge:'badge-feuille', champTitre:'nom_plante' },
-  { table:'pharmacie_protocoles', label:'Protocole de dispensation', badge:'badge-goutte', champTitre:'titre' }
+  { table:'pharmacie_protocoles', label:'Protocole de dispensation', badge:'badge-goutte', champTitre:'titre' },
+  { table:'pharmacie_revue', label:'Billet — La Revue', badge:'badge-revue', champTitre:'titre' },
+  { table:'pharmacie_hospitalier', label:'Pharmacie hospitalière', badge:'badge-hospitaliere', champTitre:'titre' },
+  { table:'pharmacie_associations', label:'Association / Collectif', badge:'badge-association', champTitre:'nom' }
 ];
 
 const LIBELLE_STATUT = {
@@ -464,6 +482,44 @@ const FORMULAIRES = {
       { id:'precautions', label:'Précautions', type:'textarea' },
       { id:'fichier', label:'Fichier (optionnel)', type:'file' }
     ]
+  },
+  revue: {
+    table: 'pharmacie_revue',
+    titre: 'Billet — La Revue',
+    urlChamp: 'image_url',
+    champs: [
+      { id:'titre', label:'Titre', type:'text', requis:true },
+      { id:'chapo', label:'Chapô (courte accroche)', type:'text', placeholder:'Une phrase qui donne envie de lire' },
+      { id:'contenu', label:'Ton billet', type:'textarea', requis:true },
+      { id:'image', label:'Image (optionnel)', type:'file' }
+    ]
+  },
+  hospitaliere: {
+    table: 'pharmacie_hospitalier',
+    titre: 'Pharmacie hospitalière',
+    urlChamp: 'fichier_url',
+    champs: [
+      { id:'titre', label:'Titre', type:'text', requis:true },
+      { id:'etablissement', label:'Établissement', type:'text' },
+      { id:'service', label:'Service', type:'text', placeholder:'ex. Pharmacie centrale, urgences' },
+      { id:'periode', label:'Période', type:'text', placeholder:'ex. Juin – Août 2026' },
+      { id:'cas_pedagogique', label:'Cas pédagogique', type:'textarea' },
+      { id:'description', label:'Description', type:'textarea' },
+      { id:'fichier', label:'Fichier (optionnel)', type:'file' }
+    ]
+  },
+  association: {
+    table: 'pharmacie_associations',
+    titre: 'Association / Collectif',
+    urlChamp: 'image_url',
+    champs: [
+      { id:'nom', label:'Nom', type:'text', requis:true },
+      { id:'type', label:'Type', type:'select',
+        options:[['association','Association'],['groupe','Groupe'],['promotion','Promotion'],['organisation','Organisation']] },
+      { id:'description', label:'Description', type:'textarea' },
+      { id:'contact', label:'Contact', type:'text', placeholder:'email, page Facebook…' },
+      { id:'image', label:'Image (optionnel)', type:'file' }
+    ]
   }
 };
 
@@ -607,5 +663,6 @@ modalForm.addEventListener('submit', async function(e){
 </script>
 
 <script src="partials/nav.js"></script>
+
 </body>
 </html>
