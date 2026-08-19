@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contactez-nous — Lakou Pharmacie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</head>
+<body>
+
+<div id="lakou-header"></div>
+
+<div class="breadcrumb">
+  <a href="index.html">🏠 Lakou Pharmacie</a>
+  <span class="sep">›</span>
+  <span class="current">Contact</span>
+</div>
+
+<main>
+
+  <div class="atelier-hero">
+    <span class="half" style="background:var(--vert-fonce);display:inline-flex;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M4 6l8 6 8-6"/></svg>
+    </span>
+    <h1>Contactez-nous</h1>
+    <p id="contact-indication">Une question, une suggestion, un problème avec ton compte ? Écris-nous.</p>
+  </div>
+
+  <div class="forum-nouveau" style="margin-top:28px;">
+    <form id="form-contact">
+      <div class="field">
+        <label for="contact-nom">Nom</label>
+        <input type="text" id="contact-nom" required>
+      </div>
+      <div class="field">
+        <label for="contact-email">Email</label>
+        <input type="email" id="contact-email" required>
+      </div>
+      <div class="field">
+        <label for="contact-sujet">Sujet (optionnel)</label>
+        <input type="text" id="contact-sujet">
+      </div>
+      <div class="field">
+        <label for="contact-message">Message</label>
+        <textarea id="contact-message" rows="5" required></textarea>
+      </div>
+      <div class="auth-form-message" id="contact-msg"></div>
+      <button class="btn-primary" type="submit" id="btn-contact">Envoyer</button>
+    </form>
+  </div>
+
+  <footer><p>Une branche de <strong>Lakou Santé</strong> — réseau Lakou Inivesite.</p></footer>
+
+</main>
+
+<script>
+(async function(){
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+  if (!session) return;
+
+  const { data: profil } = await window.supabaseClient
+    .from('profiles')
+    .select('role, nom_complet')
+    .eq('id', session.user.id)
+    .single();
+
+  document.getElementById('contact-nom').value = profil?.nom_complet || '';
+  document.getElementById('contact-email').value = session.user.email || '';
+
+  if (profil?.role === 'admin') {
+    document.getElementById('contact-indication').textContent =
+      'En tant qu\'administrateur, ton message sera transmis directement au fondateur du réseau Lakou Inivesite.';
+  } else {
+    document.getElementById('contact-indication').textContent =
+      'Ton message sera transmis à l\'administrateur de Lakou Pharmacie.';
+  }
+})();
+
+document.getElementById('form-contact').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const btn = document.getElementById('btn-contact');
+  const msg = document.getElementById('contact-msg');
+  btn.disabled = true;
+  btn.textContent = 'Envoi…';
+  msg.className = 'auth-form-message';
+
+  const { error } = await window.supabaseClient.functions.invoke('send-contact-message', {
+    body: {
+      nom: document.getElementById('contact-nom').value.trim(),
+      email: document.getElementById('contact-email').value.trim(),
+      sujet: document.getElementById('contact-sujet').value.trim(),
+      message: document.getElementById('contact-message').value.trim()
+    }
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Envoyer';
+
+  if (error) {
+    msg.textContent = "Une erreur est survenue. Réessaie dans un instant.";
+    msg.className = 'auth-form-message show error';
+    return;
+  }
+
+  msg.textContent = 'Message envoyé — merci, tu auras une réponse bientôt.';
+  msg.className = 'auth-form-message show success';
+  document.getElementById('form-contact').reset();
+});
+</script>
+
+<script src="partials/nav.js"></script>
+
+</body>
+</html>
